@@ -802,11 +802,9 @@ function BottomNav({ activePage, setActivePage, onAddEvent }) {
   const navBg = isDark ? "#1E293B" : "#fff";
   const navBorder = isDark ? "#334155" : "#E2E8F0";
   const items = [
-    { id: "events",  label: "Events",   icon: Icon.Calendar || Icon.Dashboard },
-    { id: "people",  label: "People",   icon: Icon.Network },
-    { id: "__add__", isAdd: true },
-    { id: "profile", label: "Profile",  icon: Icon.Profile },
-    { id: "settings",label: "Settings", icon: Icon.Settings }
+    { id: "events",  label: "Events",  icon: Icon.Calendar || Icon.Dashboard },
+    { id: "people",  label: "People",  icon: Icon.Network },
+    { id: "__add__", isAdd: true }
   ];
   return React.createElement("nav", { style: { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200, height: 64, background: navBg, borderTop: "1px solid "+navBorder, display: "flex", alignItems: "center", boxShadow: "0 -2px 16px rgba(0,0,0,0.08)" }},
     items.map(function(item) {
@@ -827,12 +825,10 @@ function BottomNav({ activePage, setActivePage, onAddEvent }) {
 function Sidebar({ activePage, setActivePage, currentUser }) {
   const isDark = useTheme();
   const items = [
-    { id: "events",   label: "Events",   icon: Icon.Calendar || Icon.Dashboard },
-    { id: "people",   label: "People",   icon: Icon.Network },
-    { id: "profile",  label: "Profile",  icon: Icon.Profile },
-    { id: "settings", label: "Settings", icon: Icon.Settings }
+    { id: "events",  label: "Events",  icon: Icon.Calendar || Icon.Dashboard },
+    { id: "people",  label: "People",  icon: Icon.Network }
   ];
-  const sb = isDark ? "#0A1628" : "linear-gradient(180deg, #0d1f6e 0%, #1240a8 50%, #1a50c8 100%)";
+  const sb = "linear-gradient(180deg, #0d1f6e 0%, #1240a8 50%, #1a50c8 100%)";
   const isMobile = useMobile();
   if (isMobile) return null;
   return React.createElement("aside", { style: {
@@ -2068,7 +2064,7 @@ function ProfileField({ label, value, onChange, textarea = false, editing }) {
 function ProfileSection({ title, children }) {
   return /* @__PURE__ */ React.createElement("div", { style: { background: "#fff", borderRadius: 14, border: "1px solid #EEF2F7", padding: "20px", marginBottom: 16 } }, /* @__PURE__ */ React.createElement("h4", { style: { margin: "0 0 16px", fontSize: 14, fontWeight: 800, color: "#0F172A", fontFamily: "'Sora',sans-serif" } }, title), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 } }, children));
 }
-function MyProfilePage({ currentUser, setCurrentUser }) {
+function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
   const isDark = useTheme();
   const isMobile = useMobile();
   const [draft, setDraft] = React.useState(currentUser || CURRENT_USER);
@@ -2114,6 +2110,15 @@ function MyProfilePage({ currentUser, setCurrentUser }) {
   });
   const fld = (t, val, onChange) => React.createElement("div", { style: { marginBottom: 16 }}, lbl(t), inp(t, val, onChange));
   return React.createElement("div", { style: { maxWidth: 760, margin: "0 auto", padding: isMobile ? "16px 12px" : "24px 28px", background: bg, minHeight: "100%" }},
+    React.createElement("div", { style: { display: "flex", justifyContent: "flex-end", marginBottom: 16 }},
+      React.createElement("button", {
+        onClick: function(){ if(setActivePage) setActivePage("settings"); },
+        style: { display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 10, background: isDark?"#1E293B":"#F1F5F9", border: "1px solid "+bdr, color: muted, fontSize: 12, fontWeight: 600, fontFamily: "'Sora',sans-serif", cursor: "pointer" }
+      },
+        React.createElement(Icon.Settings, null),
+        React.createElement("span", null, "Settings")
+      )
+    ),
     React.createElement("div", { style: { background: isDark?"#2D1E00":"#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: 14, padding: "14px 18px", marginBottom: 20 }},
       React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }},
         React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: isDark?"#FCD34D":"#92400E" }}, "\uD83C\uDFAF Complete your profile for better matches"),
@@ -2554,7 +2559,7 @@ function App() {
       case "network":
         return /* @__PURE__ */ React.createElement(PeoplePage, { profiles, setProfiles, onViewProfile: handleViewProfile, searchQuery, currentUser, onStatusChange: handleStatusChange, defaultTab: "network" });
       case "profile":
-        return /* @__PURE__ */ React.createElement(MyProfilePage, { currentUser, setCurrentUser });
+        return /* @__PURE__ */ React.createElement(MyProfilePage, { currentUser, setCurrentUser, setActivePage });
       case "settings":
         return /* @__PURE__ */ React.createElement(SettingsPage, { onReplayTour: () => setShowTour(true), isDark, setIsDark });
       default:
