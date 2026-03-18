@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pulse — ISB Co'27</title>
+  <title>Pulse</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003A8F'/><text y='.9em' font-size='70' x='12' fill='white' font-weight='900' font-family='system-ui'>P</text></svg>" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003A8F'/><polyline points='5,50 22,50 30,20 42,80 54,5 66,68 75,50 95,50' stroke='white' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -33,7 +33,7 @@
       html { font-size: 14px; }
     }
   </style>
-  <script>document.title = "Pulse | ISB Co'27";</script>
+  <script>document.title = "Pulse";</script>
 </head>
 <body>
   <div id="root"></div>
@@ -802,11 +802,11 @@ function BottomNav({ activePage, setActivePage, onAddEvent }) {
   const navBg = isDark ? "#1E293B" : "#fff";
   const navBorder = isDark ? "#334155" : "#E2E8F0";
   const items = [
-    { id: "events",   label: "Events",   icon: Icon.Calendar || Icon.Dashboard },
-    { id: "discover", label: "Discover", icon: Icon.Discover },
-    { id: "__add__",  isAdd: true },
-    { id: "network",  label: "Network",  icon: Icon.Network },
-    { id: "settings", label: "Settings", icon: Icon.Settings }
+    { id: "events",  label: "Events",   icon: Icon.Calendar || Icon.Dashboard },
+    { id: "people",  label: "People",   icon: Icon.Network },
+    { id: "__add__", isAdd: true },
+    { id: "profile", label: "Profile",  icon: Icon.Profile },
+    { id: "settings",label: "Settings", icon: Icon.Settings }
   ];
   return React.createElement("nav", { style: { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200, height: 64, background: navBg, borderTop: "1px solid "+navBorder, display: "flex", alignItems: "center", boxShadow: "0 -2px 16px rgba(0,0,0,0.08)" }},
     items.map(function(item) {
@@ -814,7 +814,7 @@ function BottomNav({ activePage, setActivePage, onAddEvent }) {
         React.createElement("button", { onClick: onAddEvent, style: { width: 50, height: 50, borderRadius: "50%", background: "linear-gradient(135deg,#1240a8,#1a50c8)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(18,64,168,0.45)", transform: "translateY(-10px)", fontFamily: "inherit" }},
           React.createElement("span", { style: { color: "#fff", fontSize: 26, lineHeight: 1, fontWeight: 300 }}, "+"))
       );
-      const active = activePage === item.id;
+      const active = activePage === item.id || (item.id === "people" && (activePage === "discover" || activePage === "network"));
       return React.createElement("button", { key: item.id, onClick: function(){ setActivePage(item.id); },
         style: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, border: "none", background: "transparent", color: active ? "#1240a8" : (isDark?"#64748B":"#94A3B8"), cursor: "pointer", fontFamily: "'Sora',sans-serif", fontSize: 10, fontWeight: active?700:500, transition: "color 0.15s", padding: "6px 0", height: "100%" }},
         React.createElement("span", { style: { fontSize: 18, lineHeight: 1, opacity: active?1:0.6 }}, React.createElement(item.icon, null)),
@@ -827,9 +827,9 @@ function BottomNav({ activePage, setActivePage, onAddEvent }) {
 function Sidebar({ activePage, setActivePage, currentUser }) {
   const isDark = useTheme();
   const items = [
-    { id: "events", label: "Events", icon: Icon.Calendar || Icon.Dashboard },
-    { id: "discover", label: "Discover", icon: Icon.Discover },
-    { id: "network", label: "Network", icon: Icon.Network },
+    { id: "events",   label: "Events",   icon: Icon.Calendar || Icon.Dashboard },
+    { id: "people",   label: "People",   icon: Icon.Network },
+    { id: "profile",  label: "Profile",  icon: Icon.Profile },
     { id: "settings", label: "Settings", icon: Icon.Settings }
   ];
   const sb = isDark ? "#0A1628" : "linear-gradient(180deg, #0d1f6e 0%, #1240a8 50%, #1a50c8 100%)";
@@ -853,7 +853,7 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
     React.createElement("nav", { style: { flex: 1, padding: "8px 10px" }},
       React.createElement("button", { onClick: function(){ window.dispatchEvent(new CustomEvent("pulse:createEvent")); }, style: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "11px 12px", borderRadius: 10, border: "none", marginBottom: 12, background: "linear-gradient(135deg,rgba(255,255,255,0.22),rgba(255,255,255,0.12))", color: "#fff", cursor: "pointer", fontFamily: "'Sora',sans-serif", fontSize: 13, fontWeight: 700 }}, "+ Create Event"),
       items.map(({ id, label, icon: IconComp }) => {
-        const active = activePage === id;
+        const active = activePage === id || (id === 'people' && (activePage === 'discover' || activePage === 'network'));
         return React.createElement("button", {
           key: id,
           onClick: () => setActivePage(id),
@@ -963,7 +963,7 @@ function TopBar({ searchQuery, setSearchQuery, activePage, currentUser, setActiv
   const text = isDark ? "#F1F5F9" : "#0F172A";
   const inputBg = isDark ? "#0F172A" : "#F8FAFC";
   const inputBorder = isDark ? "#334155" : "#E2E8F0";
-  const pageTitles = { events: "Events", discover: "Discover", network: "My Network", profile: "My Profile", settings: "Settings" };
+  const pageTitles = { events: "Events", people: "People", discover: "People", network: "People", profile: "My Profile", settings: "Settings" };
   return React.createElement("header", { style: {
     height: isMobile ? 56 : 64, background: bg, borderBottom: `1px solid ${border}`,
     display: "flex", alignItems: "center", padding: isMobile ? "0 16px" : "0 28px", gap: isMobile ? 10 : 16,
@@ -1572,8 +1572,13 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
             React.createElement("div", { style: { width: fillPct + "%", height: "100%", background: hero ? "#fff" : color, borderRadius: 10, transition: "width 0.8s ease" }})
           )
         ),
-        matchProfiles.length > 0 && React.createElement("div", { style: { fontSize: 12, color: hero ? "rgba(255,255,255,0.9)" : color, fontWeight: 700, marginBottom: 10 }},
-          "\u2726 ", matchProfiles.length === 1 ? matchProfiles[0].split(" ")[0] + " is going" : matchProfiles.length + " of your matches are going"
+        matchProfiles.length > 0 && React.createElement("div", {
+          style: { display: "inline-flex", alignItems: "center", gap: 5, background: hero?"rgba(255,255,255,0.2)":(isDark?color+"25":color+"15"), border: "1.5px solid "+(hero?"rgba(255,255,255,0.35)":color+"40"), borderRadius: 20, padding: "5px 11px", marginBottom: 10, alignSelf: "flex-start" }
+        },
+          React.createElement("span", { style: { fontSize: 13 }}, "✨"),
+          React.createElement("span", { style: { fontSize: 12, fontWeight: 800, color: hero?"#fff":color }},
+            matchProfiles.length === 1 ? matchProfiles[0].split(" ")[0]+" is going" : matchProfiles.length+" of your matches are going"
+          )
         ),
         React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }},
           React.createElement("div", { style: { display: "flex" }},
@@ -1695,7 +1700,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
     /* ── Top bar ── */
     React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }},
       React.createElement("div", { style: { fontSize: 13, color: isDark ? "#94A3B8" : "#64748B" }}, totalVisible, " event", totalVisible !== 1 ? "s" : "", " this week"),
-      React.createElement("button", { onClick: () => setCreating(true), style: { padding: "9px 20px", background: "linear-gradient(135deg,#1240a8,#1a50c8)", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 13, fontFamily: "'Sora',sans-serif", cursor: "pointer", boxShadow: "0 2px 12px rgba(18,64,168,0.3)" }}, "+ Create Event")
+      isMobile && React.createElement("button", { onClick: () => setCreating(true), style: { padding: "9px 20px", background: "linear-gradient(135deg,#1240a8,#1a50c8)", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 13, fontFamily: "'Sora',sans-serif", cursor: "pointer", boxShadow: "0 2px 12px rgba(18,64,168,0.3)" }}, "+ Create Event")
     ),
 
     /* ── Category chips ── */
@@ -1740,6 +1745,32 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
   );
 }
 
+
+function PeoplePage({ profiles, setProfiles, onViewProfile, searchQuery, currentUser, onStatusChange, defaultTab }) {
+  const isDark = useTheme();
+  const isMobile = useMobile();
+  const [tab, setTab] = React.useState(defaultTab || "discover");
+  const bg = isDark ? "#0F172A" : "#F8FAFC";
+  const card = isDark ? "#1E293B" : "#fff";
+  const bdr = isDark ? "#334155" : "#E2E8F0";
+  const text = isDark ? "#F1F5F9" : "#0F172A";
+  const muted = isDark ? "#94A3B8" : "#64748B";
+  return React.createElement("div", { style: { background: bg, minHeight: "100%" }},
+    React.createElement("div", { style: { display: "flex", borderBottom: "1px solid "+bdr, background: card, position: "sticky", top: 0, zIndex: 10 }},
+      React.createElement("button", {
+        onClick: function(){ setTab("discover"); },
+        style: { flex: 1, padding: "14px 0", border: "none", background: "transparent", cursor: "pointer", fontFamily: "'Sora',sans-serif", fontSize: 13, fontWeight: tab==="discover"?700:500, color: tab==="discover"?"#1240a8":muted, borderBottom: tab==="discover"?"2.5px solid #1240a8":"2.5px solid transparent", transition: "all 0.15s" }
+      }, "Discover"),
+      React.createElement("button", {
+        onClick: function(){ setTab("network"); },
+        style: { flex: 1, padding: "14px 0", border: "none", background: "transparent", cursor: "pointer", fontFamily: "'Sora',sans-serif", fontSize: 13, fontWeight: tab==="network"?700:500, color: tab==="network"?"#1240a8":muted, borderBottom: tab==="network"?"2.5px solid #1240a8":"2.5px solid transparent", transition: "all 0.15s" }
+      }, "My Network")
+    ),
+    tab === "discover"
+      ? React.createElement(DiscoverPage, { profiles, setProfiles, onViewProfile, searchQuery, currentUser })
+      : React.createElement(MyNetworkPage, { profiles, setProfiles, onStatusChange, onViewProfile })
+  );
+}
 
 function DiscoverPage({ profiles, setProfiles, onViewProfile, searchQuery, currentUser }) {
   const isDark = useTheme();
@@ -2329,14 +2360,14 @@ function OnboardingFlow({ onComplete }) {
       },
       c
     )))), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,255,255,0.06)", borderRadius: 11, padding: "11px 15px", borderLeft: "3px solid rgba(255,255,255,0.15)", marginTop: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 } }, "\u{1F512} We don't share data with ISB administration.", /* @__PURE__ */ React.createElement("br", null), "This is ", /* @__PURE__ */ React.createElement("b", { style: { color: "rgba(255,255,255,0.7)" } }, "student-built and student-run.")))),
-    /* @__PURE__ */ React.createElement("div", { key: "s1" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "rgba(255,255,255,0.5)" } }, "Pick what you're into \u2014 events will be filtered for you"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 800, color: (data.communities || []).length >= 6 ? "#34D399" : "rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.08)", padding: "3px 10px", borderRadius: 20 } }, (data.communities || []).length, "/6")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 16 } }, COMMUNITY_GROUPS.map((group) => /* @__PURE__ */ React.createElement("div", { key: group.label }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 } }, group.label), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 7 } }, group.items.map(({ name, icon, color }) => {
+    /* @__PURE__ */ React.createElement("div", { key: "s1" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: "rgba(255,255,255,0.5)" } }, "Pick what you're into \u2014 events will be filtered for you"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, fontWeight: 800, color: (data.communities || []).length >= 10 ? "#34D399" : "rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.08)", padding: "3px 10px", borderRadius: 20 } }, (data.communities || []).length, "/10")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 16 } }, COMMUNITY_GROUPS.map((group) => /* @__PURE__ */ React.createElement("div", { key: group.label }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 } }, group.label), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 7 } }, group.items.map(({ name, icon, color }) => {
       const active = (data.communities || []).includes(name);
-      const maxed = (data.communities || []).length >= 6 && !active;
+      const maxed = (data.communities || []).length >= 10 && !active;
       return /* @__PURE__ */ React.createElement(
         "button",
         {
           key: name,
-          onClick: () => toggleArr("communities", name, 6),
+          onClick: () => toggleArr("communities", name, 10),
           style: {
             padding: "7px 13px",
             borderRadius: 22,
@@ -2517,10 +2548,11 @@ function App() {
     switch (activePage) {
       case "events":
         return /* @__PURE__ */ React.createElement(EventsPage, { currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent });
+      case "people":
       case "discover":
-        return /* @__PURE__ */ React.createElement(DiscoverPage, { profiles, setProfiles, onViewProfile: handleViewProfile, searchQuery, currentUser });
+        return /* @__PURE__ */ React.createElement(PeoplePage, { profiles, setProfiles, onViewProfile: handleViewProfile, searchQuery, currentUser, onStatusChange: handleStatusChange });
       case "network":
-        return /* @__PURE__ */ React.createElement(MyNetworkPage, { profiles, setProfiles, onStatusChange: handleStatusChange, onViewProfile: handleViewProfile });
+        return /* @__PURE__ */ React.createElement(PeoplePage, { profiles, setProfiles, onViewProfile: handleViewProfile, searchQuery, currentUser, onStatusChange: handleStatusChange, defaultTab: "network" });
       case "profile":
         return /* @__PURE__ */ React.createElement(MyProfilePage, { currentUser, setCurrentUser });
       case "settings":
