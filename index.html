@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pulse | ISB Co'27</title>
+  <title>Pulse — ISB Co'27</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003A8F'/><text y='.9em' font-size='70' x='12' fill='white' font-weight='900' font-family='system-ui'>P</text></svg>" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003A8F'/><polyline points='5,50 22,50 30,20 42,80 54,5 66,68 75,50 95,50' stroke='white' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
-  <script>document.title = "Pulse | ISB Co'27";</script>
 <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { margin: 0; font-family: 'Sora', sans-serif; background: #F8FAFC; font-size: 15px; }
@@ -33,6 +33,7 @@
       html { font-size: 14px; }
     }
   </style>
+  <script>document.title = "Pulse | ISB Co'27";</script>
 </head>
 <body>
   <div id="root"></div>
@@ -744,7 +745,7 @@ function ProfileCard({ profile, onView, onStatusChange, compact = false, current
     React.createElement("div", { style: { display: "flex", alignItems: "flex-start", gap: 14, marginTop: 6, marginBottom: 14 }},
       React.createElement(Avatar, { name: profile.name, photo: profile.photo, size: 48, radius: 12, extraStyle: { border: `2px solid ${bdr}`, flexShrink: 0 }}),
       React.createElement("div", { style: { flex: 1, minWidth: 0 }},
-        React.createElement("div", { style: { fontWeight: 700, fontSize: 13, color: text, fontFamily: "'Sora',sans-serif", marginBottom: 2, letterSpacing: "-0.01em" }}, profile.name),
+        React.createElement("div", { style: { fontWeight: 800, fontSize: 15, color: text, fontFamily: "'Sora',sans-serif", marginBottom: 2, letterSpacing: "-0.01em" }}, profile.name),
         profile.prevRole && React.createElement("div", { style: { fontSize: 12, color: "#2563EB", fontWeight: 600, marginBottom: 1 }}, profile.prevRole),
         profile.prevCompany
           ? React.createElement("div", { style: { fontSize: 12, color: muted }}, profile.prevCompany)
@@ -803,49 +804,21 @@ function BottomNav({ activePage, setActivePage, onAddEvent }) {
   const items = [
     { id: "events",   label: "Events",   icon: Icon.Calendar || Icon.Dashboard },
     { id: "discover", label: "Discover", icon: Icon.Discover },
-    { id: "add",      label: "",         isAdd: true },
+    { id: "__add__",  isAdd: true },
     { id: "network",  label: "Network",  icon: Icon.Network },
     { id: "settings", label: "Settings", icon: Icon.Settings }
   ];
-  return React.createElement("nav", { style: {
-    position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200,
-    height: 64, background: navBg, borderTop: `1px solid ${navBorder}`,
-    display: "flex", alignItems: "center",
-    boxShadow: "0 -2px 16px rgba(0,0,0,0.08)"
-  }},
-    items.map(({ id, label, icon: IconComp, isAdd }) => {
-      if (isAdd) return React.createElement("div", { key: "add", style: { flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }},
-        React.createElement("button", {
-          onClick: onAddEvent,
-          style: {
-            width: 50, height: 50, borderRadius: "50%",
-            background: "linear-gradient(135deg, #1240a8 0%, #1a50c8 100%)",
-            border: "none", cursor: "pointer", display: "flex", alignItems: "center",
-            justifyContent: "center", boxShadow: "0 4px 16px rgba(18,64,168,0.45)",
-            transform: "translateY(-10px)", transition: "transform 0.15s, box-shadow 0.15s",
-            fontFamily: "inherit"
-          },
-          onMouseEnter: e => { e.currentTarget.style.transform = "translateY(-13px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(18,64,168,0.55)"; },
-          onMouseLeave: e => { e.currentTarget.style.transform = "translateY(-10px)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(18,64,168,0.45)"; }
-        },
-          React.createElement("span", { style: { color: "#fff", fontSize: 28, lineHeight: 1, marginTop: -2, fontWeight: 300 }}, "+")
-        )
+  return React.createElement("nav", { style: { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200, height: 64, background: navBg, borderTop: "1px solid "+navBorder, display: "flex", alignItems: "center", boxShadow: "0 -2px 16px rgba(0,0,0,0.08)" }},
+    items.map(function(item) {
+      if (item.isAdd) return React.createElement("div", { key: "__add__", style: { flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }},
+        React.createElement("button", { onClick: onAddEvent, style: { width: 50, height: 50, borderRadius: "50%", background: "linear-gradient(135deg,#1240a8,#1a50c8)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(18,64,168,0.45)", transform: "translateY(-10px)", fontFamily: "inherit" }},
+          React.createElement("span", { style: { color: "#fff", fontSize: 26, lineHeight: 1, fontWeight: 300 }}, "+"))
       );
-      const active = activePage === id;
-      return React.createElement("button", {
-        key: id, onClick: () => setActivePage(id),
-        style: {
-          flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
-          justifyContent: "center", gap: 3, border: "none", background: "transparent",
-          color: active ? "#1240a8" : (isDark ? "#64748B" : "#94A3B8"), cursor: "pointer",
-          fontFamily: "'Sora',sans-serif", fontSize: 10, fontWeight: active ? 700 : 500,
-          transition: "color 0.15s", padding: "6px 0", height: "100%"
-        }
-      },
-        React.createElement("span", { style: { fontSize: 18, lineHeight: 1, opacity: active ? 1 : 0.6 }},
-          React.createElement(IconComp, null)
-        ),
-        React.createElement("span", null, label)
+      const active = activePage === item.id;
+      return React.createElement("button", { key: item.id, onClick: function(){ setActivePage(item.id); },
+        style: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, border: "none", background: "transparent", color: active ? "#1240a8" : (isDark?"#64748B":"#94A3B8"), cursor: "pointer", fontFamily: "'Sora',sans-serif", fontSize: 10, fontWeight: active?700:500, transition: "color 0.15s", padding: "6px 0", height: "100%" }},
+        React.createElement("span", { style: { fontSize: 18, lineHeight: 1, opacity: active?1:0.6 }}, React.createElement(item.icon, null)),
+        item.label
       );
     })
   );
@@ -854,9 +827,9 @@ function BottomNav({ activePage, setActivePage, onAddEvent }) {
 function Sidebar({ activePage, setActivePage, currentUser }) {
   const isDark = useTheme();
   const items = [
-    { id: "events",   label: "Events",   icon: Icon.Calendar || Icon.Dashboard },
+    { id: "events", label: "Events", icon: Icon.Calendar || Icon.Dashboard },
     { id: "discover", label: "Discover", icon: Icon.Discover },
-    { id: "network",  label: "Network",  icon: Icon.Network },
+    { id: "network", label: "Network", icon: Icon.Network },
     { id: "settings", label: "Settings", icon: Icon.Settings }
   ];
   const sb = isDark ? "#0A1628" : "linear-gradient(180deg, #0d1f6e 0%, #1240a8 50%, #1a50c8 100%)";
@@ -870,26 +843,15 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
   }},
     React.createElement("div", { style: { padding: "24px 20px 20px", borderBottom: "1px solid rgba(255,255,255,0.1)", marginBottom: 8 }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 }},
-        React.createElement("svg", { width: 32, height: 32, viewBox: "0 0 32 32", style: { flexShrink: 0 } }, React.createElement("rect", { width: 32, height: 32, rx: 8, fill: "#1a50c8" }), React.createElement("polyline", { points: "3,16 9,16 12,8 16.5,24 20,4 23.5,19 26,16 29,16", stroke: "white", strokeWidth: 2.4, fill: "none", strokeLinecap: "round", strokeLinejoin: "round" })),
+        React.createElement("span", { style: { fontSize: 24, lineHeight: 1 }}, "\u26A1"),
         React.createElement("div", null,
           React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 17, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" }}, "Pulse"),
-          React.createElement("div", { style: { color: "#93C5FD", fontSize: 11, fontWeight: 500, letterSpacing: "0.01em", lineHeight: 1.35 }}, "The live pulse of ISB Co'27")
+          React.createElement("div", { style: { color: "#93C5FD", fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}, "ISB PGP CO'27")
         )
       )
     ),
     React.createElement("nav", { style: { flex: 1, padding: "8px 10px" }},
-      React.createElement("button", {
-        onClick: () => { setActivePage("events"); setTimeout(() => setActivePage("events"), 0); window.dispatchEvent(new CustomEvent("pulse:createEvent")); },
-        style: {
-          width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-          padding: "11px 12px", borderRadius: 10, border: "none", marginBottom: 12,
-          background: "linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.12) 100%)",
-          color: "#fff", cursor: "pointer", fontFamily: "'Sora',sans-serif", fontSize: 13, fontWeight: 700,
-          boxShadow: "0 2px 12px rgba(0,0,0,0.15)", transition: "all 0.15s"
-        },
-        onMouseEnter: e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.18) 100%)",
-        onMouseLeave: e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.12) 100%)"
-      }, "+ Create Event"),
+      React.createElement("button", { onClick: function(){ window.dispatchEvent(new CustomEvent("pulse:createEvent")); }, style: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "11px 12px", borderRadius: 10, border: "none", marginBottom: 12, background: "linear-gradient(135deg,rgba(255,255,255,0.22),rgba(255,255,255,0.12))", color: "#fff", cursor: "pointer", fontFamily: "'Sora',sans-serif", fontSize: 13, fontWeight: 700 }}, "+ Create Event"),
       items.map(({ id, label, icon: IconComp }) => {
         const active = activePage === id;
         return React.createElement("button", {
@@ -1028,9 +990,7 @@ function TopBar({ searchQuery, setSearchQuery, activePage, currentUser, setActiv
       })
     ),
     React.createElement(BellDropdown, { currentUser }),
-    React.createElement("div", { onClick: () => setActivePage && setActivePage("profile"), style: { cursor: "pointer" }},
-      React.createElement(Avatar, { name: currentUser.name, photo: currentUser.photo, size: 38, radius: 10, extraStyle: { border: "2px solid #003A8F" }})
-    )
+    React.createElement("div", { onClick: function(){ if(setActivePage) setActivePage("profile"); }, style: { cursor: "pointer" }}, React.createElement(Avatar, { name: currentUser.name, photo: currentUser.photo, size: 38, radius: 10, extraStyle: { border: "2px solid #003A8F" }}))
   );
 }
 
@@ -1381,61 +1341,42 @@ function CreateEventModal({ newEvt, setNewEvt, onClose, onSubmit }) {
 }
 
 
-function PastEventCard({ event: e, isDark, eventResources, setEventResources, CATS }) {
-  const isStructured = ["Talks","Career"].includes(e.category);
-  const [showResForm, setShowResForm] = React.useState(false);
-  const [resLink, setResLink] = React.useState("");
-  const resources = eventResources[e.id] || [];
-  return React.createElement("div", { style: { background: isDark ? "#1E293B" : "#F8FAFC", borderRadius: 16, border: `1px solid ${isDark ? "#334155" : "#E2E8F0"}`, padding: "16px", opacity: 0.85 }},
-    React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }},
-      React.createElement("div", null,
-        React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: isDark ? "#CBD5E1" : "#475569", fontFamily: "'Sora',sans-serif" }}, e.icon, " ", e.title),
-        React.createElement("div", { style: { fontSize: 11, color: "#94A3B8", marginTop: 2 }}, e.date, " · ", e.location)
+function PastEventCard({event,isDark,evtRes,setEvtRes}){
+  var isStr=["Talks","Career"].indexOf(event.category)!==-1;
+  var res=evtRes[event.id]||[];
+  var [showF,setShowF]=React.useState(false);
+  var [lnk,setLnk]=React.useState("");
+  return React.createElement("div",{style:{background:isDark?"#1E293B":"#F8FAFC",borderRadius:16,border:"1px solid "+(isDark?"#334155":"#E2E8F0"),padding:"16px",opacity:0.85}},
+    React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}},
+      React.createElement("div",null,
+        React.createElement("div",{style:{fontSize:13,fontWeight:800,color:isDark?"#CBD5E1":"#475569",fontFamily:"'Sora',sans-serif"}},event.icon+" "+event.title),
+        React.createElement("div",{style:{fontSize:11,color:"#94A3B8",marginTop:2}},event.date+" \u00B7 "+event.location)
       ),
-      React.createElement("span", { style: { fontSize: 10, fontWeight: 700, background: isDark ? "#334155" : "#E2E8F0", color: "#94A3B8", padding: "3px 8px", borderRadius: 20 }}, "Past")
+      React.createElement("span",{style:{fontSize:10,fontWeight:700,background:isDark?"#334155":"#E2E8F0",color:"#94A3B8",padding:"3px 8px",borderRadius:20}},"Past")
     ),
-    resources.length > 0 && React.createElement("div", { style: { marginBottom: 8 }},
-      resources.map((r, i) => React.createElement("a", { key: i, href: r.url, target: "_blank", rel: "noopener noreferrer", style: { display: "block", fontSize: 11, color: "#2563EB", fontWeight: 600, marginBottom: 4, textDecoration: "none" }},
-        "\uD83D\uDCCE ", r.label || r.url
-      ))
-    ),
-    isStructured && React.createElement("div", null,
-      !showResForm
-        ? React.createElement("button", { onClick: () => setShowResForm(true), style: { fontSize: 11, color: isDark ? "#60A5FA" : "#2563EB", background: "none", border: "none", cursor: "pointer", fontWeight: 600, fontFamily: "inherit", padding: 0 }},
-            resources.length > 0 ? "+ Add another resource" : "+ Add recording / slides"
-          )
-        : React.createElement("div", { style: { display: "flex", gap: 6, marginTop: 6 }},
-            React.createElement("input", {
-              value: resLink, onChange: ev => setResLink(ev.target.value),
-              placeholder: "Paste link (Drive, YouTube\u2026)",
-              style: { flex: 1, fontSize: 11, padding: "6px 10px", border: `1.5px solid ${isDark ? "#334155" : "#CBD5E1"}`, borderRadius: 8, background: isDark ? "#0F172A" : "#fff", color: isDark ? "#F1F5F9" : "#0F172A", fontFamily: "inherit", outline: "none" }
-            }),
-            React.createElement("button", {
-              onClick: () => {
-                if (!resLink.trim()) return;
-                setEventResources(prev => ({ ...prev, [e.id]: [...(prev[e.id]||[]), { url: resLink.trim(), label: "" }] }));
-                setResLink(""); setShowResForm(false);
-              },
-              style: { fontSize: 11, padding: "6px 10px", background: "#1240a8", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontFamily: "inherit" }
-            }, "Save"),
-            React.createElement("button", { onClick: () => setShowResForm(false), style: { fontSize: 11, padding: "6px 8px", background: "none", border: "none", cursor: "pointer", color: "#94A3B8", fontFamily: "inherit" }}, "\u2715")
-          )
+    res.length>0&&React.createElement("div",{style:{marginBottom:8}},res.map(function(r,i){return React.createElement("a",{key:i,href:r.url,target:"_blank",rel:"noopener noreferrer",style:{display:"block",fontSize:11,color:"#2563EB",fontWeight:600,marginBottom:4,textDecoration:"none"}},"[Resource] "+r.url);})),
+    isStr&&React.createElement("div",null,
+      !showF?React.createElement("button",{onClick:function(){setShowF(true);},style:{fontSize:11,color:isDark?"#60A5FA":"#2563EB",background:"none",border:"none",cursor:"pointer",fontWeight:600,fontFamily:"inherit",padding:0}},res.length>0?"+ Add another resource":"+ Add recording / slides")
+      :React.createElement("div",{style:{display:"flex",gap:6,marginTop:6}},
+        React.createElement("input",{value:lnk,onChange:function(ev){setLnk(ev.target.value);},placeholder:"Paste link...",style:{flex:1,fontSize:11,padding:"6px 10px",border:"1.5px solid "+(isDark?"#334155":"#CBD5E1"),borderRadius:8,background:isDark?"#0F172A":"#fff",color:isDark?"#F1F5F9":"#0F172A",fontFamily:"inherit",outline:"none"}}),
+        React.createElement("button",{onClick:function(){if(!lnk.trim())return;setEvtRes(function(p){var n=Object.assign({},p);n[event.id]=[...(p[event.id]||[]),{url:lnk.trim()}];return n;});setLnk("");setShowF(false);},style:{fontSize:11,padding:"6px 10px",background:"#1240a8",color:"#fff",border:"none",borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"inherit"}},"Save"),
+        React.createElement("button",{onClick:function(){setShowF(false);},style:{fontSize:11,padding:"6px 8px",background:"none",border:"none",cursor:"pointer",color:"#94A3B8",fontFamily:"inherit"}},"x")
+      )
     )
   );
 }
-
-function EventsPage({ currentUser, setActivePage, searchQuery, profiles, showCreateEvent, setShowCreateEvent }) {
+function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent }) {
   const isDark = useTheme();
   const isMobile = useMobile();
   const [joined, setJoined] = React.useState({});
   const [catFilter, setCatFilter] = React.useState("All");
   const [selectedEvt, setSelectedEvt] = React.useState(null);
   const [creating, setCreating] = React.useState(false);
-  React.useEffect(() => { if (showCreateEvent) { setCreating(true); if (setShowCreateEvent) setShowCreateEvent(false); } }, [showCreateEvent]);
-  React.useEffect(() => {
-    const handler = () => setCreating(true);
-    window.addEventListener("pulse:createEvent", handler);
-    return () => window.removeEventListener("pulse:createEvent", handler);
+  React.useEffect(function(){ if(showCreateEvent){ setCreating(true); if(setShowCreateEvent) setShowCreateEvent(false); } }, [showCreateEvent]);
+  React.useEffect(function(){
+    function h(){ setCreating(true); }
+    window.addEventListener("pulse:createEvent", h);
+    return function(){ window.removeEventListener("pulse:createEvent", h); };
   }, []);
   const [allEvents, setAllEvents] = React.useState(SAMPLE_EVENTS);
   const [newEvt, setNewEvt] = React.useState({ title: "", community: "", category: "Social", location: "", timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
@@ -1483,36 +1424,23 @@ function EventsPage({ currentUser, setActivePage, searchQuery, profiles, showCre
     const base = event.id === (liveEvent && liveEvent.id) ? liveCount : event.attendees.length;
     return base + (joined[event.id] ? 1 : 0);
   };
-  const addToCalendar = (event) => {
+  const addToCalendar = function(ev) {
     try {
-      const now = new Date();
-      const dateStr = event.date ? event.date.replace(/-/g, "") : now.toISOString().slice(0,10).replace(/-/g,"");
-      const timeStr = event.time ? event.time.replace(":","") + "00" : "120000";
-      const endTimeStr = event.time ? (String(parseInt(event.time.split(":")[0])+2).padStart(2,"0") + event.time.split(":")[1] + "00") : "140000";
-      const ics = [
-        "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Pulse ISB//EN",
-        "BEGIN:VEVENT",
-        `DTSTART:${dateStr}T${timeStr}`,
-        `DTEND:${dateStr}T${endTimeStr}`,
-        `SUMMARY:${event.title}`,
-        `DESCRIPTION:${event.vibe || ""} — ${event.community}`,
-        `LOCATION:${event.location || "ISB Campus"}`,
-        "END:VEVENT", "END:VCALENDAR"
-      ].join("\r\n");
-      const blob = new Blob([ics], { type: "text/calendar" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = `${event.title.replace(/\s+/g,"-")}.ics`; a.click();
+      var d=(ev.date||new Date().toISOString().slice(0,10)).replace(/-/g,"");
+      var t=ev.time?ev.time.replace(":","")+"00":"120000";
+      var t2=ev.time?(String(parseInt(ev.time.split(":")[0])+2).padStart(2,"0")+ev.time.split(":")[1]+"00"):"140000";
+      var ics="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nDTSTART:"+d+"T"+t+"\r\nDTEND:"+d+"T"+t2+"\r\nSUMMARY:"+ev.title+"\r\nLOCATION:"+(ev.location||"ISB Campus")+"\r\nEND:VEVENT\r\nEND:VCALENDAR";
+      var blob=new Blob([ics],{type:"text/calendar"});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement("a");
+      a.href=url; a.download=(ev.title||"event").replace(/\s+/g,"-")+".ics"; a.click();
       URL.revokeObjectURL(url);
-    } catch(e) {}
+    }catch(e){}
   };
   const toggleJoin = (id) => {
-    const wasJoined = !!joined[id];
-    setJoined((j) => ({ ...j, [id]: !j[id] }));
-    if (!wasJoined) {
-      const event = allEvents.find(e => e.id === id);
-      if (event) addToCalendar(event);
-    }
+    var was=!!joined[id];
+    setJoined((j)=>({...j,[id]:!j[id]}));
+    if(!was){ var ev=allEvents.find(function(e){return e.id===id;}); if(ev) addToCalendar(ev); }
   };
 
   const applyFilters = (events) => {
@@ -1537,14 +1465,14 @@ function EventsPage({ currentUser, setActivePage, searchQuery, profiles, showCre
     const diff = Math.round((new Date(e.date + "T00:00:00") - new Date(todayStr + "T00:00:00")) / 864e5);
     return diff >= 2 && diff <= 6;
   }));
-  const pastEvents = allEvents.filter(e => {
-    if (e.live) return false;
-    const diff = Math.round((new Date(e.date + "T00:00:00") - new Date(todayStr + "T00:00:00")) / 864e5);
-    return diff < 0;
-  }).sort((a, b) => b.date.localeCompare(a.date));
-  const [showPast, setShowPast] = React.useState(false);
-  const [eventResources, setEventResources] = React.useState({});
 
+  const pastEvts = allEvents.filter(function(e){
+    if(e.live) return false;
+    var diff=Math.round((new Date(e.date+"T00:00:00")-new Date(todayStr+"T00:00:00"))/864e5);
+    return diff<0;
+  }).sort(function(a,b){return b.date.localeCompare(a.date);});
+  const [showPast, setShowPast] = React.useState(false);
+  const [evtRes, setEvtRes] = React.useState({});
   const activeCat = CATS.find(c => c.id === catFilter) || CATS[0];
   const totalVisible = liveEvents.length + todayEvents.length + tomorrowEvents.length + weekEvents.length;
 
@@ -1615,6 +1543,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, profiles, showCre
     const color = (CATS.find(c => c.id === event.category) || CATS[1]).color;
     const going = goingCount(event);
     const spots = event.maxSpots === null ? null : event.maxSpots - going;
+    const fillPct = event.maxSpots ? Math.min(100, Math.round(going / event.maxSpots * 100)) : Math.min(100, Math.round(going / 20 * 100));
     const matchProfiles = event.attendees.filter(n => matchPoolNames.includes(n));
     return React.createElement("div", {
       style: { background: hero ? `linear-gradient(145deg, ${color}EE 0%, ${color} 100%)` : (isDark ? "#1E293B" : "#fff"), borderRadius: hero ? 20 : 18, border: hero ? "none" : `1px solid ${isDark ? "#334155" : "#F0F0F0"}`, overflow: "hidden", boxShadow: hero ? `0 8px 32px ${color}50` : (isDark ? "0 2px 12px rgba(0,0,0,0.2)" : "0 2px 12px rgba(0,0,0,0.06)"), cursor: "pointer", transition: "transform 0.18s, box-shadow 0.18s", display: "flex", flexDirection: "column" },
@@ -1634,24 +1563,32 @@ function EventsPage({ currentUser, setActivePage, searchQuery, profiles, showCre
           React.createElement("span", { style: { fontSize: 12, color: hero ? "rgba(255,255,255,0.85)" : (isDark ? "#94A3B8" : "#64748B"), display: "flex", alignItems: "center", gap: 4 }}, "\uD83D\uDD50 ", event.timeLabel),
           React.createElement("span", { style: { fontSize: 12, color: hero ? "rgba(255,255,255,0.85)" : (isDark ? "#94A3B8" : "#64748B"), display: "flex", alignItems: "center", gap: 4 }}, "\uD83D\uDCCD ", event.location)
         ),
+        React.createElement("div", { style: { marginBottom: 14 }},
+          React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }},
+            React.createElement("span", { style: { fontSize: 12, fontWeight: 700, color: hero ? "#fff" : (isDark ? "#CBD5E1" : "#0F172A") }}, going, " going"),
+            event.maxSpots && React.createElement("span", { style: { fontSize: 11, color: hero ? "rgba(255,255,255,0.7)" : "#94A3B8" }}, spots > 0 ? spots + " spots left" : "Full")
+          ),
+          React.createElement("div", { style: { background: hero ? "rgba(255,255,255,0.2)" : (isDark ? "#334155" : "#F1F5F9"), borderRadius: 10, height: 5, overflow: "hidden" }},
+            React.createElement("div", { style: { width: fillPct + "%", height: "100%", background: hero ? "#fff" : color, borderRadius: 10, transition: "width 0.8s ease" }})
+          )
+        ),
         matchProfiles.length > 0 && React.createElement("div", { style: { fontSize: 12, color: hero ? "rgba(255,255,255,0.9)" : color, fontWeight: 700, marginBottom: 10 }},
           "\u2726 ", matchProfiles.length === 1 ? matchProfiles[0].split(" ")[0] + " is going" : matchProfiles.length + " of your matches are going"
         ),
         React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }},
           React.createElement("div", { style: { display: "flex" }},
-            event.attendees.slice(0, 5).map((name, i) =>
-              React.createElement("div", { key: name, style: { width: 26, height: 26, borderRadius: "50%", border: `2px solid ${hero ? "rgba(255,255,255,0.6)" : (isDark ? "#1E293B" : "#fff")}`, marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i, overflow: "hidden", background: isDark ? "#334155" : "#E2E8F0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800, color: hero ? "#fff" : "#64748B", fontFamily: "'Sora',sans-serif" }},
-                name.split(" ").map(n => n[0]).join("").slice(0,2)
-              )
-            )
+            event.attendees.slice(0,5).map(function(name,i){
+              return React.createElement("div", { key: name, style: { width:26, height:26, borderRadius:"50%", border:"2px solid "+(hero?"rgba(255,255,255,0.6)":(isDark?"#1E293B":"#fff")), marginLeft:i>0?-8:0, overflow:"hidden", background:isDark?"#334155":"#E2E8F0", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:hero?"#fff":"#64748B", fontFamily:"'Sora',sans-serif" }},
+                name.split(" ").map(function(n){return n[0];}).join("").slice(0,2)
+              );
+            })
           ),
-          React.createElement("span", { style: { fontSize: 11, color: hero ? "rgba(255,255,255,0.75)" : (isDark ? "#94A3B8" : "#64748B"), fontWeight: 600 }},
-            going, " going", event.maxSpots && spots > 0 ? ` · ${spots} spots left` : event.maxSpots && spots <= 0 ? " · Full" : ""
+          React.createElement("span", { style: { fontSize:11, color:hero?"rgba(255,255,255,0.75)":(isDark?"#94A3B8":"#64748B"), fontWeight:600 }},
+            going+" going"+(event.maxSpots&&spots>0?" · "+spots+" spots left":event.maxSpots&&spots<=0?" · Full":"")
           )
         ),
-          React.createElement("button", { onClick: e => { e.stopPropagation(); toggleJoin(event.id); }, style: { width: "100%", padding: "10px", border: hero ? "2px solid rgba(255,255,255,0.45)" : "none", borderRadius: 11, cursor: "pointer", fontWeight: 700, fontSize: 13, fontFamily: "'Sora',sans-serif", background: isJoined ? (hero ? "rgba(255,255,255,0.25)" : "#ECFDF5") : (hero ? "rgba(255,255,255,0.15)" : color), color: isJoined ? (hero ? "#fff" : "#059669") : "#fff", transition: "all 0.15s" }},
-            isJoined ? "\u2713 Going" : "Count me in \u2192"
-          )
+        React.createElement("button", { onClick: function(e){ e.stopPropagation(); toggleJoin(event.id); }, style: { width:"100%", padding:"10px", border:hero?"2px solid rgba(255,255,255,0.45)":"none", borderRadius:11, cursor:"pointer", fontWeight:700, fontSize:13, fontFamily:"'Sora',sans-serif", background:isJoined?(hero?"rgba(255,255,255,0.25)":"#ECFDF5"):(hero?"rgba(255,255,255,0.15)":color), color:isJoined?(hero?"#fff":"#059669"):"#fff", transition:"all 0.15s" }},
+          isJoined ? "✓ Going" : "Count me in →"
         )
       )
     );
@@ -1662,7 +1599,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, profiles, showCre
     if (events.length === 0) return null;
     return React.createElement("div", { style: { marginBottom: 32 }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }},
-        React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: isDark ? "#F1F5F9" : "#0F172A", fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" }}, label),
+        React.createElement("div", { style: { fontSize: 18, fontWeight: 900, color: isDark ? "#F1F5F9" : "#0F172A", fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" }}, label),
         React.createElement("div", { style: { fontSize: 12, fontWeight: 600, color: "#94A3B8", background: isDark ? "#1E293B" : "#F1F5F9", borderRadius: 20, padding: "3px 10px" }}, events.length, " event", events.length !== 1 ? "s" : ""),
         React.createElement("div", { style: { flex: 1, height: 1, background: isDark ? "#334155" : "#E2E8F0" }})
       ),
@@ -1684,11 +1621,11 @@ function EventsPage({ currentUser, setActivePage, searchQuery, profiles, showCre
 
     // Mobile: stacked 2-line bar. Desktop: single row.
     return React.createElement("div", {
-      style: { marginBottom: 28, borderRadius: 16, overflow: "hidden", border: `1.5px solid ${isDark ? "rgba(252,165,165,0.2)" : "rgba(252,165,165,0.55)"}`, boxShadow: "0 0 0 3px rgba(239,68,68,0.03), 0 4px 16px rgba(239,68,68,0.06)", cursor: "pointer", background: isDark ? "#16111a" : "#FFF8F8" },
+      style: { marginBottom: 28, borderRadius: 16, overflow: "hidden", border: "1.5px solid #FCA5A5", boxShadow: "0 0 0 3px rgba(239,68,68,0.08), 0 4px 20px rgba(239,68,68,0.12)", cursor: "pointer", background: isDark ? "#1E0A0A" : "#FFF5F5" },
       onClick: () => setSelectedEvt(event)
     },
       // Red accent line at top
-      React.createElement("div", { style: { height: 3, background: "linear-gradient(90deg,#FF6B6B,#FF9A7B,#FF6B6B)", backgroundSize: "200% 100%", animation: "shimmer 2s linear infinite" }}),
+      React.createElement("div", { style: { height: 3, background: "linear-gradient(90deg,#EF4444,#F97316,#EF4444)", backgroundSize: "200% 100%", animation: "shimmer 2s linear infinite" }}),
       React.createElement("div", { style: { padding: isMobile ? "12px 14px" : "14px 20px" }},
         // Row 1: live badge + title + meta + join button
         React.createElement("div", { style: { display: "flex", alignItems: "center", gap: isMobile ? 10 : 16, flexWrap: isMobile ? "wrap" : "nowrap" }},
@@ -1726,12 +1663,12 @@ function EventsPage({ currentUser, setActivePage, searchQuery, profiles, showCre
           // Join button
           React.createElement("button", {
             onClick: ev => { ev.stopPropagation(); toggleJoin(event.id); },
-            style: { padding: "8px 18px", borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 800, fontSize: 12, fontFamily: "'Sora',sans-serif", background: isJoined ? "#ECFDF5" : "#1240a8", color: isJoined ? "#059669" : "#fff", flexShrink: 0, transition: "all 0.15s", boxShadow: isJoined ? "none" : "0 2px 10px rgba(18,64,168,0.45)" }
+            style: { padding: "8px 18px", borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 800, fontSize: 12, fontFamily: "'Sora',sans-serif", background: isJoined ? "#ECFDF5" : "#EF4444", color: isJoined ? "#059669" : "#fff", flexShrink: 0, transition: "all 0.15s", boxShadow: isJoined ? "none" : "0 2px 10px rgba(239,68,68,0.4)" }
           }, isJoined ? "\u2713 Going" : "Join now \u2192")
         ),
         // Thin fill bar beneath
         React.createElement("div", { style: { marginTop: 10, background: isDark ? "#4B0000" : "#FEE2E2", borderRadius: 10, height: 3, overflow: "hidden" }},
-          React.createElement("div", { style: { width: fillPct + "%", height: "100%", background: "linear-gradient(90deg,#FF6B6B,#FF9A7B)", borderRadius: 10, transition: "width 0.8s ease" }})
+          React.createElement("div", { style: { width: fillPct + "%", height: "100%", background: "linear-gradient(90deg,#EF4444,#F97316)", borderRadius: 10, transition: "width 0.8s ease" }})
         )
       )
     );
@@ -1789,17 +1726,14 @@ function EventsPage({ currentUser, setActivePage, searchQuery, profiles, showCre
           React.createElement(DateGroup, { label: "Today",      events: todayEvents }),
           React.createElement(DateGroup, { label: "Tomorrow",   events: tomorrowEvents }),
           React.createElement(DateGroup, { label: "This Week",  events: weekEvents }),
-          React.createElement("div", { style: { marginTop: 32, paddingTop: 24, borderTop: `1px solid ${isDark ? "#334155" : "#E2E8F0"}` }},
-            React.createElement("button", {
-              onClick: () => setShowPast(s => !s),
-              style: { display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "'Sora',sans-serif" }
-            },
-              React.createElement("span", { style: { fontSize: 13, fontWeight: 700, color: isDark ? "#64748B" : "#94A3B8" }}, showPast ? "▲ Hide past events" : "▼ Show past events"),
-              pastEvents.length > 0 && React.createElement("span", { style: { fontSize: 11, background: isDark ? "#334155" : "#F1F5F9", color: isDark ? "#94A3B8" : "#64748B", padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}, pastEvents.length)
+          React.createElement("div",{style:{marginTop:32,paddingTop:24,borderTop:"1px solid "+(isDark?"#334155":"#E2E8F0")}},
+            React.createElement("button",{onClick:function(){setShowPast(function(s){return !s;});},style:{display:"flex",alignItems:"center",gap:8,background:"none",border:"none",cursor:"pointer",padding:0,fontFamily:"'Sora',sans-serif"}},
+              React.createElement("span",{style:{fontSize:13,fontWeight:700,color:isDark?"#64748B":"#94A3B8"}},showPast?"Hide past events":"Show past events"),
+              pastEvts.length>0&&React.createElement("span",{style:{fontSize:11,background:isDark?"#334155":"#F1F5F9",color:"#94A3B8",padding:"2px 8px",borderRadius:20,fontWeight:700}},pastEvts.length)
             ),
-            showPast && pastEvents.length === 0 && React.createElement("div", { style: { fontSize: 13, color: "#94A3B8", marginTop: 12 }}, "No past events yet."),
-            showPast && pastEvents.length > 0 && React.createElement("div", { style: { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: isMobile ? 10 : 14, marginTop: 16 }},
-              pastEvents.map(e => React.createElement(PastEventCard, { key: e.id, event: e, isDark, eventResources, setEventResources, CATS }))
+            showPast&&pastEvts.length===0&&React.createElement("div",{style:{fontSize:13,color:"#94A3B8",marginTop:12}},"No past events yet."),
+            showPast&&pastEvts.length>0&&React.createElement("div",{style:{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:isMobile?10:14,marginTop:16}},
+              pastEvts.map(function(e){return React.createElement(PastEventCard,{key:e.id,event:e,isDark:isDark,evtRes:evtRes,setEvtRes:setEvtRes});})
             )
           )
         )
@@ -1853,7 +1787,7 @@ function DiscoverPage({ profiles, setProfiles, onViewProfile, searchQuery, curre
   const SectionHeader = ({ title, subtitle, count, seeAll, onSeeAll }) =>
     React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 14 }},
       React.createElement("div", null,
-        React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: text, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, title),
+        React.createElement("div", { style: { fontSize: 16, fontWeight: 900, color: text, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, title),
         subtitle && React.createElement("div", { style: { fontSize: 12, color: muted, marginTop: 2 }}, subtitle)
       ),
       count > 4 && React.createElement("button", { onClick: onSeeAll, style: { fontSize: 12, color: "#2563EB", fontWeight: 700, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }},
@@ -1978,29 +1912,13 @@ function MyNetworkPage({ profiles, setProfiles, onStatusChange, onViewProfile })
   const bdr = isDark ? "#334155" : "#EEF2F7";
   const text = isDark ? "#F1F5F9" : "#0F172A";
   const muted = isDark ? "#94A3B8" : "#64748B";
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const allContacted = (profiles||[]).filter(p => p.contactStatus !== "Not contacted");
-  const active = allContacted.filter(p => p.contactStatus === "Active connection");
-  const followUp = allContacted.filter(p => p.contactStatus === "Follow-up scheduled")
-    .sort((a, b) => {
-      if (!a.followUpDate && !b.followUpDate) return 0;
-      if (!a.followUpDate) return 1;
-      if (!b.followUpDate) return -1;
-      return a.followUpDate.localeCompare(b.followUpDate);
-    });
-  const contacted = allContacted.filter(p => p.contactStatus === "Contacted");
-  const overdueCount = followUp.filter(p => p.followUpDate && p.followUpDate < todayStr).length;
-  const dueTodayCount = followUp.filter(p => p.followUpDate === todayStr).length;
-  const handleSnooze = (id) => {
-    const snoozeDate = new Date();
-    snoozeDate.setDate(snoozeDate.getDate() + 3);
-    const newDate = snoozeDate.toISOString().slice(0, 10);
-    setProfiles(prev => {
-      const next = prev.map(p => p.id === id ? { ...p, followUpDate: newDate } : p);
-      try { localStorage.setItem("pulse_profiles", JSON.stringify(next)); } catch(e) {}
-      return next;
-    });
-  };
+  const todayStr=new Date().toISOString().slice(0,10);
+  const allContacted=(profiles||[]).filter(p=>p.contactStatus!=="Not contacted");
+  const active=allContacted.filter(p=>p.contactStatus==="Active connection");
+  const followUp=allContacted.filter(p=>p.contactStatus==="Follow-up scheduled").sort((a,b)=>(!a.followUpDate&&!b.followUpDate)?0:!a.followUpDate?1:!b.followUpDate?-1:a.followUpDate.localeCompare(b.followUpDate));
+  const contacted=allContacted.filter(p=>p.contactStatus==="Contacted");
+  const overdueCount=followUp.filter(p=>p.followUpDate&&p.followUpDate<todayStr).length;
+  const handleSnooze=(id)=>{const d=new Date();d.setDate(d.getDate()+3);const nd=d.toISOString().slice(0,10);setProfiles(prev=>{const next=prev.map(p=>p.id===id?{...p,followUpDate:nd}:p);try{localStorage.setItem("pulse_profiles",JSON.stringify(next));}catch(e){}return next;});};
   const NetworkCard = ({ p }) => {
     const scoreColor = getCompatibilityColor(calculateCompatibility(p, CURRENT_USER));
     const score = calculateCompatibility(p, CURRENT_USER);
@@ -2009,22 +1927,15 @@ function MyNetworkPage({ profiles, setProfiles, onStatusChange, onViewProfile })
     const reason = sharedH.length && sharedG.length ? `Both into ${sharedH[0]} \xB7 ${sharedG[0]}`
       : sharedH.length ? `Both into ${sharedH.slice(0,2).join(" & ")}`
       : sharedG.length ? `Both targeting ${sharedG[0]}` : null;
-    const isOverdue = p.followUpDate && p.followUpDate < todayStr;
-    const isDueToday = p.followUpDate === todayStr;
-    const isFollowUp = p.contactStatus === "Follow-up scheduled";
     return React.createElement("div", {
-      style: { background: card, borderRadius: 16, border: `1.5px solid ${isOverdue ? "#FCA5A5" : isDueToday ? "#FDE68A" : bdr}`, padding: isMobile ? "14px" : "20px", boxShadow: isDark?"0 1px 4px rgba(0,0,0,0.3)":"0 1px 4px rgba(0,0,0,0.04)", transition: "all 0.18s" },
+      style: { background: card, borderRadius: 16, border: `1px solid ${bdr}`, padding: isMobile ? "14px" : "20px", boxShadow: isDark?"0 1px 4px rgba(0,0,0,0.3)":"0 1px 4px rgba(0,0,0,0.04)", transition: "all 0.18s" },
       onMouseEnter: e => e.currentTarget.style.boxShadow = `0 6px 24px rgba(0,58,143,${isDark?'0.25':'0.1'})`,
       onMouseLeave: e => e.currentTarget.style.boxShadow = isDark?"0 1px 4px rgba(0,0,0,0.3)":"0 1px 4px rgba(0,0,0,0.04)"
     },
       React.createElement("div", { style: { display: "flex", gap: isMobile ? 10 : 14, alignItems: "flex-start", marginBottom: 12 }},
         React.createElement(Avatar, { name: p.name, photo: p.photo, size: isMobile ? 38 : 48, radius: isMobile ? 10 : 12, extraStyle: { border: `2px solid ${bdr}`, flexShrink: 0 }}),
         React.createElement("div", { style: { flex: 1, minWidth: 0 }},
-          React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }},
-            React.createElement("div", { style: { fontWeight: 800, fontSize: 14, color: text, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, p.name),
-            isOverdue && React.createElement("span", { style: { fontSize: 10, fontWeight: 800, background: "#FEE2E2", color: "#DC2626", padding: "2px 7px", borderRadius: 20, letterSpacing: "0.03em" }}, "\u{1F534} OVERDUE"),
-            isDueToday && React.createElement("span", { style: { fontSize: 10, fontWeight: 800, background: "#FEF3C7", color: "#D97706", padding: "2px 7px", borderRadius: 20, letterSpacing: "0.03em" }}, "\u{1F7E1} TODAY")
-          ),
+          React.createElement("div", { style: { fontWeight: 800, fontSize: 14, color: text, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, p.name),
           p.prevRole && React.createElement("div", { style: { fontSize: 12, color: "#2563EB", fontWeight: 600 }}, p.prevRole),
           p.prevCompany && React.createElement("div", { style: { fontSize: 12, color: muted }}, p.prevCompany)
         ),
@@ -2047,24 +1958,12 @@ function MyNetworkPage({ profiles, setProfiles, onStatusChange, onViewProfile })
         (p.careerGoals||[]).slice(0,2).map(g => React.createElement("span", { key: g, style: { fontSize: 11, background: isDark?"#1D3461":"#EFF6FF", color: "#2563EB", padding: "2px 8px", borderRadius: 20, fontWeight: 600 }}, g))
       ),
       reason && React.createElement("div", { style: { fontSize: 11, color: "#0F766E", fontWeight: 600, background: isDark?"#0D2E2E":"#F0FDFA", border: "1px solid #99F6E4", borderRadius: 8, padding: "4px 9px", marginBottom: 10 }}, "\u2726 ", reason),
-      isFollowUp && p.followUpDate && React.createElement("div", { style: { fontSize: 11, color: isOverdue?"#DC2626":isDueToday?"#D97706":"#64748B", marginBottom: 10, fontWeight: isOverdue||isDueToday?700:400 }},
-        "\uD83D\uDCC5 Follow up: ", p.followUpDate
-      ),
-      React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }},
-        React.createElement(StatusBadge, { status: p.contactStatus }),
-        React.createElement("div", { style: { display: "flex", gap: 6 }},
-          isFollowUp && React.createElement("button", {
-            onClick: (e) => { e.stopPropagation(); onStatusChange(p.id, "Active connection"); },
-            style: { fontSize: 11, padding: "5px 10px", borderRadius: 8, background: "#ECFDF5", color: "#059669", border: "1.5px solid #6EE7B7", cursor: "pointer", fontWeight: 700, fontFamily: "inherit" }
-          }, "\u2713 Done"),
-          isFollowUp && React.createElement("button", {
-            onClick: (e) => { e.stopPropagation(); handleSnooze(p.id); },
-            style: { fontSize: 11, padding: "5px 10px", borderRadius: 8, background: isDark?"#1E293B":"#F8FAFC", color: muted, border: `1px solid ${bdr}`, cursor: "pointer", fontWeight: 600, fontFamily: "inherit" }
-          }, "\u23F0 +3 days"),
-          React.createElement("button", {
-            onClick: () => onViewProfile(p),
-            style: { fontSize: 11, padding: "5px 14px", borderRadius: 8, background: isDark?"#1E3A8A":"#003A8F", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700, fontFamily: "inherit" }
-          }, "View")
+      React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }},
+        React.createElement(StatusBadge,{status:p.contactStatus}),
+        React.createElement("div",{style:{display:"flex",gap:6}},
+          p.contactStatus==="Follow-up scheduled"&&React.createElement("button",{onClick:(e)=>{e.stopPropagation();onStatusChange(p.id,"Active connection");},style:{fontSize:11,padding:"5px 10px",borderRadius:8,background:"#ECFDF5",color:"#059669",border:"1.5px solid #6EE7B7",cursor:"pointer",fontWeight:700,fontFamily:"inherit"}},"✓ Done"),
+          p.contactStatus==="Follow-up scheduled"&&React.createElement("button",{onClick:(e)=>{e.stopPropagation();handleSnooze(p.id);},style:{fontSize:11,padding:"5px 10px",borderRadius:8,background:isDark?"#1E293B":"#F8FAFC",color:muted,border:"1px solid "+bdr,cursor:"pointer",fontWeight:600,fontFamily:"inherit"}},"⏰ +3d"),
+          React.createElement("button",{onClick:()=>onViewProfile(p),style:{fontSize:11,padding:"5px 14px",borderRadius:8,background:isDark?"#1E3A8A":"#003A8F",color:"#fff",border:"none",cursor:"pointer",fontWeight:700,fontFamily:"inherit"}},"View")
         )
       )
     );
@@ -2074,7 +1973,7 @@ function MyNetworkPage({ profiles, setProfiles, onStatusChange, onViewProfile })
     return React.createElement("div", { style: { marginBottom: 32 }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }},
         React.createElement("span", { style: { fontSize: 18 }}, icon),
-        React.createElement("span", { style: { fontSize: 13, fontWeight: 700, color: text, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, title),
+        React.createElement("span", { style: { fontSize: 16, fontWeight: 900, color: text, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, title),
         React.createElement("span", { style: { fontSize: 12, background: isDark?"#334155":"#EEF2F7", color: muted, padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}, items.length)
       ),
       React.createElement("div", { style: { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(300px, 1fr))", gap: isMobile ? 10 : 14 }},
@@ -2096,19 +1995,11 @@ function MyNetworkPage({ profiles, setProfiles, onStatusChange, onViewProfile })
         )
       )
     ),
-    followUp.length > 0 && React.createElement("div", { style: { background: isDark?"#2D1E00":"#FFFBEB", border: `1.5px solid ${overdueCount > 0 ? "#FCA5A5" : "#FDE68A"}`, borderRadius: 14, padding: "12px 18px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }},
-      React.createElement("span", { style: { fontSize: 18 }}, overdueCount > 0 ? "\uD83D\uDD34" : "\u23F0"),
+    followUp.length > 0 && React.createElement("div", { style: { background: isDark?"#2D1E00":"#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: 14, padding: "12px 18px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }},
+      React.createElement("span", { style: { fontSize: 18 }}, overdueCount>0?"\uD83D\uDD34":"\u23F0"),
       React.createElement("div", { style: { flex: 1, fontSize: 13, fontWeight: 700, color: isDark?"#FCD34D":overdueCount>0?"#991B1B":"#92400E" }},
-        overdueCount > 0
-          ? `${overdueCount} overdue follow-up${overdueCount>1?"s":""} — don't let these slip! `
-          : dueTodayCount > 0
-            ? `${dueTodayCount} follow-up${dueTodayCount>1?"s":""} due today: `
-            : `${followUp.length} ${followUp.length===1?"person is":"people are"} waiting to hear from you: `,
-        React.createElement("span", { style: { fontWeight: 500 }},
-          overdueCount > 0
-            ? followUp.filter(p=>p.followUpDate&&p.followUpDate<todayStr).slice(0,3).map(p=>p.name.split(" ")[0]).join(", ")
-            : followUp.slice(0,3).map(p=>p.name.split(" ")[0]).join(", ")
-        )
+        overdueCount>0 ? overdueCount+" overdue follow-up"+(overdueCount>1?"s":"") : followUp.length+" "+(followUp.length===1?"person is":"people are")+" waiting to hear from you: ",
+        React.createElement("span", { style: { fontWeight: 500 }}, followUp.slice(0,3).map(p=>p.name.split(" ")[0]).join(", "))
       )
     ),
     allContacted.length === 0
@@ -2291,13 +2182,13 @@ function SettingsPage({ onReplayTour, isDark, setIsDark }) {
   const theme = isDark ? "dark" : "light";
   const Toggle = ({ on, onToggle }) => /* @__PURE__ */ React.createElement("div", {
     onClick: onToggle,
-    style: { width: 40, height: 22, borderRadius: 11, background: on ? (isDark ? "#3B82F6" : "#003A8F") : (isDark ? "#334155" : "#E2E8F0"), position: "relative", cursor: "pointer", transition: "background 0.2s", flexShrink: 0 }
+    style: { width: 40, height: 22, borderRadius: 11, background: on ? "#003A8F" : "#E2E8F0", position: "relative", cursor: "pointer", transition: "background 0.2s", flexShrink: 0 }
   }, /* @__PURE__ */ React.createElement("div", { style: { width: 16, height: 16, borderRadius: "50%", background: "#fff", position: "absolute", top: 3, left: on ? 21 : 3, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" } }));
-  const Card = ({ children }) => /* @__PURE__ */ React.createElement("div", { style: { background: isDark ? "#1E293B" : "#fff", borderRadius: 14, border: `1px solid ${isDark ? "#2D3F55" : "#EEF2F7"}`, padding: "20px", marginBottom: 16, boxShadow: isDark ? "0 2px 12px rgba(0,0,0,0.3)" : "0 1px 4px rgba(0,0,0,0.04)" } }, children);
-  const SectionTitle = ({ children }) => /* @__PURE__ */ React.createElement("h4", { style: { margin: "0 0 16px", fontSize: 14, fontWeight: 800, color: isDark ? "#F1F5F9" : "#0F172A", fontFamily: "'Sora',sans-serif" } }, children);
-  const Row = ({ label, children }) => /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "#F1F5F9"}` } },
-    /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: isDark ? "#94A3B8" : "#475569" } }, label), children);
-  return /* @__PURE__ */ React.createElement("div", { style: { maxWidth: 640, margin: "0 auto", padding: "24px 28px", minHeight: "100%", background: isDark ? "#0F172A" : "#F8FAFC" } },
+  const Card = ({ children }) => /* @__PURE__ */ React.createElement("div", { style: { background: "#fff", borderRadius: 14, border: "1px solid #EEF2F7", padding: "20px", marginBottom: 16 } }, children);
+  const SectionTitle = ({ children }) => /* @__PURE__ */ React.createElement("h4", { style: { margin: "0 0 16px", fontSize: 14, fontWeight: 800, color: "#0F172A", fontFamily: "'Sora',sans-serif" } }, children);
+  const Row = ({ label, children }) => /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #F1F5F9" } },
+    /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#475569" } }, label), children);
+  return /* @__PURE__ */ React.createElement("div", { style: { maxWidth: 640, margin: "0 auto", padding: "24px 28px" } },
     /* @__PURE__ */ React.createElement(Card, null,
       /* @__PURE__ */ React.createElement(SectionTitle, null, "\uD83D\uDD14 Notifications"),
       /* @__PURE__ */ React.createElement(Row, { label: "New event near you" }, /* @__PURE__ */ React.createElement(Toggle, { on: notifs.events, onToggle: () => setNotifs(n => ({...n, events: !n.events})) })),
@@ -2308,13 +2199,13 @@ function SettingsPage({ onReplayTour, isDark, setIsDark }) {
     /* @__PURE__ */ React.createElement(Card, null,
       /* @__PURE__ */ React.createElement(SectionTitle, null, "\uD83C\uDFAF Matching Preferences"),
       /* @__PURE__ */ React.createElement(Row, { label: "PREFERRED CAMPUS" },
-        /* @__PURE__ */ React.createElement("select", { value: campus, onChange: e => setCampus(e.target.value), style: { border: `1.5px solid ${isDark ? "#334155" : "#E2E8F0"}`, borderRadius: 8, padding: "5px 10px", fontSize: 13, fontFamily: "'Sora',sans-serif", color: isDark ? "#F1F5F9" : "#0F172A", background: isDark ? "#1E293B" : "#fff", cursor: "pointer" } },
+        /* @__PURE__ */ React.createElement("select", { value: campus, onChange: e => setCampus(e.target.value), style: { border: "1.5px solid #E2E8F0", borderRadius: 8, padding: "5px 10px", fontSize: 13, fontFamily: "'Sora',sans-serif", color: "#0F172A", cursor: "pointer" } },
           /* @__PURE__ */ React.createElement("option", null, "Hyderabad"),
           /* @__PURE__ */ React.createElement("option", null, "Mohali")
         )
       ),
       /* @__PURE__ */ React.createElement(Row, { label: "MATCH VISIBILITY" },
-        /* @__PURE__ */ React.createElement("select", { value: visibility, onChange: e => setVisibility(e.target.value), style: { border: `1.5px solid ${isDark ? "#334155" : "#E2E8F0"}`, borderRadius: 8, padding: "5px 10px", fontSize: 13, fontFamily: "'Sora',sans-serif", color: isDark ? "#F1F5F9" : "#0F172A", background: isDark ? "#1E293B" : "#fff", cursor: "pointer" } },
+        /* @__PURE__ */ React.createElement("select", { value: visibility, onChange: e => setVisibility(e.target.value), style: { border: "1.5px solid #E2E8F0", borderRadius: 8, padding: "5px 10px", fontSize: 13, fontFamily: "'Sora',sans-serif", color: "#0F172A", cursor: "pointer" } },
           /* @__PURE__ */ React.createElement("option", null, "Everyone"),
           /* @__PURE__ */ React.createElement("option", null, "Matches only"),
           /* @__PURE__ */ React.createElement("option", null, "Nobody")
@@ -2324,14 +2215,14 @@ function SettingsPage({ onReplayTour, isDark, setIsDark }) {
     /* @__PURE__ */ React.createElement(Card, null,
       /* @__PURE__ */ React.createElement(SectionTitle, null, "\uD83C\uDFA8 Appearance"),
       /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } },
-        ["light", "dark"].map(t => /* @__PURE__ */ React.createElement("button", { key: t, onClick: () => setIsDark(t==="dark"), style: { padding: "8px 20px", borderRadius: 10, border: `1.5px solid ${theme === t ? (isDark ? "#60A5FA" : "#003A8F") : (isDark ? "#334155" : "#E2E8F0")}`, background: theme === t ? (isDark ? "#1D4ED8" : "#003A8F") : (isDark ? "#1E293B" : "#fff"), color: theme === t ? "#fff" : (isDark ? "#94A3B8" : "#64748B"), fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Sora',sans-serif" } },
+        ["light", "dark"].map(t => /* @__PURE__ */ React.createElement("button", { key: t, onClick: () => setIsDark(t==="dark"), style: { padding: "8px 20px", borderRadius: 10, border: "1.5px solid " + (theme === t ? "#003A8F" : "#E2E8F0"), background: theme === t ? "#003A8F" : "#fff", color: theme === t ? "#fff" : "#64748B", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Sora',sans-serif" } },
           t === "light" ? "\u2600\uFE0F Light" : "\uD83C\uDF19 Dark"
         ))
       )
     ),
     /* @__PURE__ */ React.createElement(Card, null,
       /* @__PURE__ */ React.createElement(SectionTitle, null, "\uD83D\uDCD6 Help"),
-      /* @__PURE__ */ React.createElement("button", { onClick: onReplayTour, style: { display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", background: isDark ? "#1E293B" : "#F8FAFC", border: `1.5px solid ${isDark ? "#334155" : "#E2E8F0"}`, borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, color: isDark ? "#60A5FA" : "#003A8F", fontFamily: "'Sora',sans-serif" } },
+      /* @__PURE__ */ React.createElement("button", { onClick: onReplayTour, style: { display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", background: "#F8FAFC", border: "1.5px solid #E2E8F0", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#003A8F", fontFamily: "'Sora',sans-serif" } },
         "\uD83C\uDFA0 Replay Product Tour"
       )
     )
@@ -2475,7 +2366,7 @@ function OnboardingFlow({ onComplete }) {
     })) : /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "30px 0", color: "rgba(255,255,255,0.4)" } }, "No events this week \u2014 check back soon"), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 14, fontSize: 12, color: "rgba(255,255,255,0.4)", textAlign: "center" } }, "More events and people waiting inside \u2192"))
   ];
   const isLast = step === 2;
-  return /* @__PURE__ */ React.createElement("div", { style: { minHeight: "100vh", background: "linear-gradient(160deg,#0d1f6e 0%,#1240a8 50%,#1a50c8 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "'Sora',sans-serif" } },  /* @__PURE__ */ React.createElement("div", { style: { width: "100%", maxWidth: 480 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 28, justifyContent: "center" } }, /* @__PURE__ */ React.createElement("svg", { width: 34, height: 34, viewBox: "0 0 32 32", style: { flexShrink: 0 } }, React.createElement("rect", { width: 32, height: 32, rx: 8, fill: "rgba(255,255,255,0.18)" }), React.createElement("polyline", { points: "3,16 9,16 12,8 16.5,24 20,4 23.5,19 26,16 29,16", stroke: "white", strokeWidth: 2.4, fill: "none", strokeLinecap: "round", strokeLinejoin: "round" })), /* @__PURE__ */ React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 20, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" } }, "Pulse")), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginBottom: 20 } }, /* @__PURE__ */ React.createElement("button", { onClick: () => onComplete({ ...CURRENT_USER, _isGuest: true }), style: { background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.25)", borderRadius: 22, padding: "8px 22px", color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Sora',sans-serif", transition: "all 0.15s" }, onMouseEnter: e => e.currentTarget.style.background="rgba(255,255,255,0.18)", onMouseLeave: e => e.currentTarget.style.background="rgba(255,255,255,0.1)" }, "\uD83D\uDC40 Just exploring \u2192")), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", borderRadius: 22, border: "1.5px solid rgba(255,255,255,0.15)", padding: "28px 24px", boxShadow: "0 24px 80px rgba(0,0,0,0.3)" } }, /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 20 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20, fontWeight: 900, color: "#fff", fontFamily: "'Sora',sans-serif", lineHeight: 1.3, marginBottom: 5, letterSpacing: "-0.01em" } }, STEPS_META[step].heading), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 } }, STEPS_META[step].sub)), /* @__PURE__ */ React.createElement("div", { key: step, style: { animation: "cardIn 0.25s ease both" } }, stepContent[step]), /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement("div", { style: { minHeight: "100vh", background: "linear-gradient(160deg,#0d1f6e 0%,#1240a8 50%,#1a50c8 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "'Sora',sans-serif" } },  /* @__PURE__ */ React.createElement("div", { style: { width: "100%", maxWidth: 480 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 28, justifyContent: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 26, lineHeight: 1 } }, "\u26A1"), /* @__PURE__ */ React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 20, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" } }, "Pulse")), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginBottom: 20 } }, /* @__PURE__ */ React.createElement("button", { onClick: () => onComplete({ ...CURRENT_USER, _isGuest: true }), style: { background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.25)", borderRadius: 22, padding: "8px 22px", color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Sora',sans-serif", transition: "all 0.15s" }, onMouseEnter: e => e.currentTarget.style.background="rgba(255,255,255,0.18)", onMouseLeave: e => e.currentTarget.style.background="rgba(255,255,255,0.1)" }, "\uD83D\uDC40 Just exploring \u2192")), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", borderRadius: 22, border: "1.5px solid rgba(255,255,255,0.15)", padding: "28px 24px", boxShadow: "0 24px 80px rgba(0,0,0,0.3)" } }, /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 20 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20, fontWeight: 900, color: "#fff", fontFamily: "'Sora',sans-serif", lineHeight: 1.3, marginBottom: 5, letterSpacing: "-0.01em" } }, STEPS_META[step].heading), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 } }, STEPS_META[step].sub)), /* @__PURE__ */ React.createElement("div", { key: step, style: { animation: "cardIn 0.25s ease both" } }, stepContent[step]), /* @__PURE__ */ React.createElement(
     "button",
     {
       onClick: () => {
@@ -2625,7 +2516,7 @@ function App() {
     }
     switch (activePage) {
       case "events":
-        return /* @__PURE__ */ React.createElement(EventsPage, { currentUser, setActivePage, searchQuery, profiles, showCreateEvent, setShowCreateEvent });
+        return /* @__PURE__ */ React.createElement(EventsPage, { currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent });
       case "discover":
         return /* @__PURE__ */ React.createElement(DiscoverPage, { profiles, setProfiles, onViewProfile: handleViewProfile, searchQuery, currentUser });
       case "network":
@@ -2644,12 +2535,12 @@ function App() {
     React.createElement(MobileContext.Provider, { value: isMobile },
     /* @__PURE__ */ React.createElement(React.Fragment, null,
     showTour && /* @__PURE__ */ React.createElement(ProductTour, { onClose: () => setShowTour(false) }),
-    /* @__PURE__ */ React.createElement("div", { style: { display: "flex", minHeight: "100vh", background: isDark ? "#0F172A" : "#F8FAFC", fontFamily: "'Sora',sans-serif" } },
+    /* @__PURE__ */ React.createElement("div", { style: { display: "flex", minHeight: "100vh", background: "#F8FAFC", fontFamily: "'Sora',sans-serif" } },
       React.createElement(Sidebar, { activePage: navPage, setActivePage: handleNav, currentUser }),
       React.createElement("div", { style: { marginLeft: isMobile ? 0 : 220, flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh" } },
         React.createElement(TopBar, { searchQuery, setSearchQuery, activePage: activePage === "profileDetail" ? "discover" : activePage, currentUser, setActivePage: handleNav }),
         React.createElement("main", { style: { flex: 1, overflowY: "auto", paddingBottom: isMobile ? 60 : 0 } }, renderPage()),
-        isMobile && React.createElement(BottomNav, { activePage: navPage, setActivePage: handleNav, onAddEvent: () => { handleNav("events"); setShowCreateEvent(true); } })
+        isMobile && React.createElement(BottomNav, { activePage: navPage, setActivePage: handleNav, onAddEvent: function(){ handleNav("events"); setTimeout(function(){ window.dispatchEvent(new CustomEvent("pulse:createEvent")); },50); } })
       )
     ))));
 }
