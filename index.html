@@ -882,8 +882,8 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 }},
         React.createElement("span", { style: { fontSize: 24, lineHeight: 1 }}, "\u26A1"),
         React.createElement("div", null,
-          React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 17, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" }}, "Pulse"),
-          React.createElement("div", { style: { color: "#93C5FD", fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}, "ISB PGP CO'27")
+          React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 18, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" }}, "Pulse"),
+          React.createElement("div", { style: { color: "#93C5FD", fontSize: 11, fontWeight: 500, letterSpacing: "0.01em", lineHeight: 1.35 }}, "The live pulse of ISB Co‧27")
         )
       )
     ),
@@ -2260,12 +2260,12 @@ function SettingsPage({ onReplayTour, isDark, setIsDark }) {
   const theme = isDark ? "dark" : "light";
   const Toggle = ({ on, onToggle }) => /* @__PURE__ */ React.createElement("div", {
     onClick: onToggle,
-    style: { width: 40, height: 22, borderRadius: 11, background: on ? "#003A8F" : "#E2E8F0", position: "relative", cursor: "pointer", transition: "background 0.2s", flexShrink: 0 }
+    style: { width: 40, height: 22, borderRadius: 11, background: on ? "#3B82F6" : (isDark?"#334155":"#E2E8F0"), position: "relative", cursor: "pointer", transition: "background 0.2s", flexShrink: 0 }
   }, /* @__PURE__ */ React.createElement("div", { style: { width: 16, height: 16, borderRadius: "50%", background: "#fff", position: "absolute", top: 3, left: on ? 21 : 3, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" } }));
   const Card = ({ children }) => /* @__PURE__ */ React.createElement("div", { style: { background: isDark?"#1E293B":"#fff", borderRadius: 14, border: "1px solid "+(isDark?"#334155":"#EEF2F7"), padding: "20px", marginBottom: 16 } }, children);
-  const SectionTitle = ({ children }) => /* @__PURE__ */ React.createElement("h4", { style: { margin: "0 0 16px", fontSize: 14, fontWeight: 800, color: "#0F172A", fontFamily: "'Sora',sans-serif" } }, children);
-  const Row = ({ label, children }) => /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #F1F5F9" } },
-    /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "#475569" } }, label), children);
+  const SectionTitle = ({ children }) => /* @__PURE__ */ React.createElement("h4", { style: { margin: "0 0 16px", fontSize: 14, fontWeight: 800, color: isDark?"#F1F5F9":"#0F172A", fontFamily: "'Sora',sans-serif" } }, children);
+  const Row = ({ label, children }) => /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid "+(isDark?"#334155":"#F1F5F9") } },
+    /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: isDark?"#CBD5E1":"#475569" } }, label), children);
   return /* @__PURE__ */ React.createElement("div", { style: { maxWidth: 640, margin: "0 auto", padding: "24px 28px" } },
     /* @__PURE__ */ React.createElement(Card, null,
       /* @__PURE__ */ React.createElement(SectionTitle, null, "\uD83D\uDD14 Notifications"),
@@ -2276,14 +2276,14 @@ function SettingsPage({ onReplayTour, isDark, setIsDark }) {
     ),
     /* @__PURE__ */ React.createElement(Card, null,
       /* @__PURE__ */ React.createElement(SectionTitle, null, "\uD83C\uDFAF Matching Preferences"),
-      /* @__PURE__ */ React.createElement(Row, { label: "PREFERRED CAMPUS" },
-        /* @__PURE__ */ React.createElement("select", { value: campus, onChange: e => setCampus(e.target.value), style: { border: "1.5px solid #E2E8F0", borderRadius: 8, padding: "5px 10px", fontSize: 13, fontFamily: "'Sora',sans-serif", color: "#0F172A", cursor: "pointer" } },
+      /* @__PURE__ */ React.createElement(Row, { label: "Campus" },
+        /* @__PURE__ */ React.createElement("select", { value: campus, onChange: e => setCampus(e.target.value), style: { border: "1.5px solid "+(isDark?"#334155":"#E2E8F0"), borderRadius: 8, padding: "5px 10px", fontSize: 13, fontFamily: "'Sora',sans-serif", color: isDark?"#F1F5F9":"#0F172A", background: isDark?"#1E293B":"#fff", cursor: "pointer" } },
           /* @__PURE__ */ React.createElement("option", null, "Hyderabad"),
           /* @__PURE__ */ React.createElement("option", null, "Mohali")
         )
       ),
-      /* @__PURE__ */ React.createElement(Row, { label: "MATCH VISIBILITY" },
-        /* @__PURE__ */ React.createElement("select", { value: visibility, onChange: e => setVisibility(e.target.value), style: { border: "1.5px solid #E2E8F0", borderRadius: 8, padding: "5px 10px", fontSize: 13, fontFamily: "'Sora',sans-serif", color: "#0F172A", cursor: "pointer" } },
+      /* @__PURE__ */ React.createElement(Row, { label: "Match visibility" },
+        /* @__PURE__ */ React.createElement("select", { value: visibility, onChange: e => setVisibility(e.target.value), style: { border: "1.5px solid "+(isDark?"#334155":"#E2E8F0"), borderRadius: 8, padding: "5px 10px", fontSize: 13, fontFamily: "'Sora',sans-serif", color: isDark?"#F1F5F9":"#0F172A", background: isDark?"#1E293B":"#fff", cursor: "pointer" } },
           /* @__PURE__ */ React.createElement("option", null, "Everyone"),
           /* @__PURE__ */ React.createElement("option", null, "Matches only"),
           /* @__PURE__ */ React.createElement("option", null, "Nobody")
@@ -2293,7 +2293,7 @@ function SettingsPage({ onReplayTour, isDark, setIsDark }) {
     /* @__PURE__ */ React.createElement(Card, null,
       /* @__PURE__ */ React.createElement(SectionTitle, null, "\uD83C\uDFA8 Appearance"),
       /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } },
-        ["light", "dark"].map(t => /* @__PURE__ */ React.createElement("button", { key: t, onClick: () => setIsDark(t==="dark"), style: { padding: "8px 20px", borderRadius: 10, border: "1.5px solid " + (theme === t ? "#003A8F" : "#E2E8F0"), background: theme === t ? "#003A8F" : "#fff", color: theme === t ? "#fff" : "#64748B", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Sora',sans-serif" } },
+        ["light", "dark"].map(t => /* @__PURE__ */ React.createElement("button", { key: t, onClick: () => setIsDark(t==="dark"), style: { padding: "8px 20px", borderRadius: 10, border: "1.5px solid " + (theme === t ? "#003A8F" : "#E2E8F0"), background: theme === t ? "#003A8F" : (isDark?"#334155":"#fff"), color: theme === t ? "#fff" : (isDark?"#CBD5E1":"#64748B"), fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Sora',sans-serif" } },
           t === "light" ? "\u2600\uFE0F Light" : "\uD83C\uDF19 Dark"
         ))
       )
