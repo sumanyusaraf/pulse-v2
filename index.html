@@ -51,7 +51,7 @@ async function signInWithMagicLink(email) {
 async function signOut() { await _sb.auth.signOut(); window.location.reload(); }
 async function getProfile(uid) { const {data} = await _sb.from('profiles').select('*').eq('id',uid).single(); return data; }
 async function upsertProfile(uid, p) { return await _sb.from('profiles').upsert({id:uid,...p,updated_at:new Date().toISOString()}); }
-async function fetchEvents() { const {data} = await _sb.from('events').select('*,rsvps(user_id,profiles(name,photo))').order('date').order('time'); return data||[]; }
+async function fetchEvents() { const {data} = await _sb.from('events').select('*,rsvps(user_id,profiles(name,photo)),creator:profiles!events_created_by_fkey(name)').order('date').order('time'); return data||[]; }
 async function fetchProfiles() { const {data} = await _sb.from('profiles').select('*').eq('onboarded',true); return data||[]; }
 async function rsvpEvent(uid,eid) { return await _sb.from('rsvps').insert({user_id:uid,event_id:eid}); }
 async function unrsvpEvent(uid,eid) { return await _sb.from('rsvps').delete().eq('user_id',uid).eq('event_id',eid); }
@@ -64,7 +64,8 @@ function dbProfileToApp(p) {
 function dbEventToApp(e) {
   if(!e) return null;
   const attendeeNames=(e.rsvps||[]).map(r=>r.profiles?.name).filter(Boolean);
-  return { id:e.id, title:e.title, community:e.community||e.category, category:e.category, location:e.location, date:e.date, time:e.time, timeLabel:e.time_label||e.time, vibe:e.vibe, icon:e.icon||'📅', color:e.color||'#1240a8', maxSpots:e.max_spots, live:e.is_live, attendees:attendeeNames, createdBy:e.created_by };
+  var creatorName = (e.creator && e.creator.name) ? e.creator.name : (e.created_by ? 'ISB Member' : 'ISB Member');
+  return { id:e.id, title:e.title, community:e.community||e.category, category:e.category, location:e.location, date:e.date, time:e.time, timeLabel:e.time_label||e.time, vibe:e.vibe, icon:e.icon||'📅', color:e.color||'#1240a8', maxSpots:e.max_spots, live:e.is_live, attendees:attendeeNames, createdBy:creatorName };
 }
 const ThemeContext = React.createContext(false);
 const useTheme = () => React.useContext(ThemeContext);
