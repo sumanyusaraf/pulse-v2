@@ -943,7 +943,7 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
     React.createElement("div", { style: { padding: "12px 14px", margin: "0 10px 0", background: "rgba(255,255,255,0.08)", borderRadius: 12 }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 }},
         React.createElement(Avatar, { name: currentUser.name, photo: currentUser.photo, size: 34, radius: 8, extraStyle: { border: "2px solid rgba(255,255,255,0.2)" }}),
-        React.createElement("div", { style: { color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, (currentUser.name && currentUser.name !== "ISB Member" && currentUser.name !== "Guest") ? currentUser.name : (currentUser.email ? currentUser.email.split("_pgp")[0].replace(/_/g," ") : "My Profile"))
+        React.createElement("div", { style: { color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, (function(){ var n = currentUser.name; var e = currentUser.email; if(n && n !== "ISB Member" && n !== "Guest" && n.trim()) return n; if(e) { var base = e.split("@")[0].split("_pgp")[0]; return base.split("_").map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join(" "); } return "My Profile"; })())
       )
     )
   );
@@ -1305,6 +1305,7 @@ const EVENT_CATS = [
   { id: "Talks", label: "Talks", icon: "\u{1F399}", color: "#0F766E" }
 ];
 function CreateEventModal({ newEvt, setNewEvt, onClose, onSubmit }) {
+  const isDark = useTheme();
   const setF = (k, v) => setNewEvt((p) => ({ ...p, [k]: v }));
   const canCreate = (newEvt.title || "").trim() && newEvt.category && (newEvt.location || "").trim() && (newEvt.timeLabel || "").trim();
   const inputStyle = { width: "100%", padding: "10px 13px", border: "1.5px solid "+(isDark?"#334155":"#E2E8F0"), borderRadius: 10, fontSize: 13, outline: "none", fontFamily: "inherit", color: isDark?"#F1F5F9":"#0F172A", background: isDark?"#1E293B":"#fff", boxSizing: "border-box" };
@@ -1503,8 +1504,13 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
       URL.revokeObjectURL(url);
     }catch(e){}
   };
-  const toggleJoin = (id) => {
-    setJoined((j)=>({...j,[id]:!j[id]}));
+  const toggleJoin = async (id) => {
+    if (onRsvpToggle) {
+      await onRsvpToggle(id);
+      setJoined((j)=>({...j,[id]:!j[id]}));
+    } else {
+      setJoined((j)=>({...j,[id]:!j[id]}));
+    }
   };
 
   const applyFilters = (events) => {
@@ -2606,6 +2612,7 @@ function App({session}) {
   }, [userId]);
   const appEvents = dbEvents.length>0 ? dbEvents.map(dbEventToApp) : SAMPLE_EVENTS;
   const appProfiles = dbProfiles.length>0 ? dbProfiles.map(dbProfileToApp) : SAMPLE_PROFILES;
+  const profiles = appProfiles; // alias for backward compat
   const currentUser = myProfile ? dbProfileToApp(myProfile) : (isGuest ? {...CURRENT_USER,name:"Guest",_isGuest:true} : CURRENT_USER);
   const needsOnboarding = !isGuest && userId && dataLoaded && myProfile && !myProfile.onboarded;
   const isNewUser = !isGuest && userId && dataLoaded && !myProfile;
