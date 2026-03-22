@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { margin: 0; font-family: 'Sora', sans-serif; background: #F8FAFC; font-size: 15px; }
@@ -39,6 +40,32 @@
   <div id="root"></div>
   <script>
 const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+// ── Supabase ─────────────────────────────────────────────────────
+const _sb = supabase.createClient("https://tiwewcglycjsnxexkykg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpd2V3Y2dseWNqc254ZXhreWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNTQxNzcsImV4cCI6MjA4OTczMDE3N30.2eyGKkbpvqFUO9ILGVDpuNm8nF1rWcsThI9CFC5hYTk");
+
+async function signInWithMagicLink(email) {
+  if (!email.toLowerCase().endsWith('@isb.edu')) return { error: { message: 'Only @isb.edu emails are allowed.' } };
+  return await _sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin } });
+}
+async function signOut() { await _sb.auth.signOut(); window.location.reload(); }
+async function getProfile(uid) { const {data} = await _sb.from('profiles').select('*').eq('id',uid).single(); return data; }
+async function upsertProfile(uid, p) { return await _sb.from('profiles').upsert({id:uid,...p,updated_at:new Date().toISOString()}); }
+async function fetchEvents() { const {data} = await _sb.from('events').select('*,rsvps(user_id,profiles(name,photo))').order('date').order('time'); return data||[]; }
+async function fetchProfiles() { const {data} = await _sb.from('profiles').select('*').eq('onboarded',true); return data||[]; }
+async function rsvpEvent(uid,eid) { return await _sb.from('rsvps').insert({user_id:uid,event_id:eid}); }
+async function unrsvpEvent(uid,eid) { return await _sb.from('rsvps').delete().eq('user_id',uid).eq('event_id',eid); }
+async function createEventDB(uid,evt) { const {data,error} = await _sb.from('events').insert({...evt,created_by:uid}).select().single(); return {data,error}; }
+
+function dbProfileToApp(p) {
+  if(!p) return null;
+  return { id:p.id, name:p.name||'ISB Member', email:p.email, prevRole:p.prev_role, prevCompany:p.prev_company, industry:p.industry, yearsExp:p.years_exp, location:p.location, campus:p.campus, undergrad:p.undergrad, degree:p.degree, major:p.major, careerGoals:p.career_goals||[], interests:p.interests||[], hobbies:p.hobbies||[], skills:p.skills||[], photo:p.photo, contactStatus:'Not contacted', followUpDate:null, interactions:[], notes:'' };
+}
+function dbEventToApp(e) {
+  if(!e) return null;
+  const attendeeNames=(e.rsvps||[]).map(r=>r.profiles?.name).filter(Boolean);
+  return { id:e.id, title:e.title, community:e.community||e.category, category:e.category, location:e.location, date:e.date, time:e.time, timeLabel:e.time_label||e.time, vibe:e.vibe, icon:e.icon||'📅', color:e.color||'#1240a8', maxSpots:e.max_spots, live:e.is_live, attendees:attendeeNames, createdBy:e.created_by };
+}
 const ThemeContext = React.createContext(false);
 const useTheme = () => React.useContext(ThemeContext);
 const MobileContext = React.createContext(false);
@@ -2476,24 +2503,100 @@ function OBField({ label, value, onChange, placeholder, type = "text" }) {
     }
   ));
 }
-function App() {
-  const savedUser = (() => {
-    try {
-      const s = localStorage.getItem("pulse_currentUser");
-      return s ? JSON.parse(s) : null;
-    } catch (e) {
-      return null;
+
+function AuthGate() {
+  const [session, setSession] = React.useState(undefined);
+  const [email, setEmail] = React.useState('');
+  const [sent, setSent] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [authError, setAuthError] = React.useState('');
+
+  React.useEffect(() => {
+    _sb.auth.getSession().then(({data}) => setSession(data.session));
+    const {data:{subscription}} = _sb.auth.onAuthStateChange((_e,s) => setSession(s));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (session === undefined) return React.createElement('div', {style:{minHeight:'100vh',background:'linear-gradient(160deg,#0d1f6e,#1240a8,#1a50c8)',display:'flex',alignItems:'center',justifyContent:'center'}},
+    React.createElement('div', {style:{color:'#fff',fontFamily:"'Sora',sans-serif",fontSize:16}}, 'Loading Pulse...')
+  );
+
+  if (session) return React.createElement(App, {session});
+
+  function handleSend() {
+    if(!email.trim()) return;
+    setLoading(true); setAuthError('');
+    signInWithMagicLink(email.trim()).then(({error:err}) => {
+      setLoading(false);
+      if(err) setAuthError(err.message); else setSent(true);
+    });
+  }
+
+  return React.createElement('div', {style:{minHeight:'100vh',background:'linear-gradient(160deg,#0d1f6e 0%,#1240a8 50%,#1a50c8 100%)',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',fontFamily:"'Sora',sans-serif"}},
+    React.createElement('div', {style:{width:'100%',maxWidth:420}},
+      React.createElement('div', {style:{display:'flex',alignItems:'center',gap:12,justifyContent:'center',marginBottom:32}},
+        React.createElement('svg', {width:40,height:40,viewBox:'0 0 32 32'},
+          React.createElement('rect', {width:32,height:32,rx:8,fill:'rgba(255,255,255,0.18)'}),
+          React.createElement('polyline', {points:'3,16 9,16 12,8 16.5,24 20,4 23.5,19 26,16 29,16',stroke:'white',strokeWidth:2.4,fill:'none',strokeLinecap:'round',strokeLinejoin:'round'})
+        ),
+        React.createElement('div', null,
+          React.createElement('div', {style:{color:'#fff',fontWeight:900,fontSize:26,letterSpacing:'-0.02em'}}, 'Pulse'),
+          React.createElement('div', {style:{color:'#93C5FD',fontSize:12,fontWeight:500}}, 'The live pulse of ISB Co\u202727')
+        )
+      ),
+      !sent ? React.createElement('div', {style:{background:'rgba(255,255,255,0.08)',backdropFilter:'blur(20px)',borderRadius:22,border:'1.5px solid rgba(255,255,255,0.15)',padding:'32px 28px',boxShadow:'0 24px 80px rgba(0,0,0,0.3)'}},
+        React.createElement('div', {style:{fontSize:22,fontWeight:900,color:'#fff',marginBottom:8,letterSpacing:'-0.01em'}}, 'Welcome \uD83D\uDC4B'),
+        React.createElement('div', {style:{fontSize:14,color:'rgba(255,255,255,0.6)',marginBottom:24,lineHeight:1.6}}, 'Enter your ISB email to get a magic login link. No password needed.'),
+        React.createElement('label', {style:{display:'block',fontSize:11,color:'rgba(255,255,255,0.6)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:8}}, 'ISB Email'),
+        React.createElement('input', {type:'email',value:email,onChange:e=>setEmail(e.target.value),onKeyDown:e=>e.key==='Enter'&&!loading&&handleSend(),placeholder:'yourname@isb.edu',style:{width:'100%',padding:'13px 16px',borderRadius:12,border:'1.5px solid rgba(255,255,255,0.2)',background:'rgba(255,255,255,0.1)',color:'#fff',fontSize:15,fontFamily:"'Sora',sans-serif",outline:'none',boxSizing:'border-box',marginBottom:12}}),
+        authError && React.createElement('div', {style:{fontSize:13,color:'#FCA5A5',marginBottom:12,fontWeight:600}}, authError),
+        React.createElement('button', {onClick:handleSend,disabled:loading||!email.trim(),style:{width:'100%',padding:'14px',border:'none',borderRadius:12,background:loading?'rgba(255,255,255,0.15)':'linear-gradient(135deg,#3B82F6,#2563EB)',color:'#fff',fontSize:15,fontWeight:800,cursor:loading?'not-allowed':'pointer',fontFamily:"'Sora',sans-serif",marginBottom:16}},
+          loading ? 'Sending...' : 'Send magic link \u2192'
+        ),
+        React.createElement('div', {style:{textAlign:'center'}},
+          React.createElement('button', {onClick:()=>setSession({_guest:true}),style:{background:'none',border:'none',color:'rgba(255,255,255,0.45)',fontSize:13,cursor:'pointer',fontFamily:"'Sora',sans-serif"}}, '\uD83D\uDC40 Just exploring \u2192')
+        )
+      ) : React.createElement('div', {style:{background:'rgba(255,255,255,0.08)',backdropFilter:'blur(20px)',borderRadius:22,border:'1.5px solid rgba(255,255,255,0.15)',padding:'32px 28px',textAlign:'center',boxShadow:'0 24px 80px rgba(0,0,0,0.3)'}},
+        React.createElement('div', {style:{fontSize:48,marginBottom:16}}, '\uD83D\uDCE7'),
+        React.createElement('div', {style:{fontSize:20,fontWeight:900,color:'#fff',marginBottom:8}}, 'Check your inbox!'),
+        React.createElement('div', {style:{fontSize:14,color:'rgba(255,255,255,0.6)',lineHeight:1.6,marginBottom:20}}, 'We sent a magic link to ', React.createElement('strong', {style:{color:'#93C5FD'}}, email), '. Click it to sign in.'),
+        React.createElement('button', {onClick:()=>{setSent(false);setEmail('');},style:{background:'none',border:'none',color:'rgba(255,255,255,0.45)',fontSize:13,cursor:'pointer',fontFamily:"'Sora',sans-serif"}}, '\u2190 Use a different email')
+      )
+    )
+  );
+}
+
+function App({session}) {
+  const isGuest = session && session._guest;
+  const userId = session && !isGuest ? session.user?.id : null;
+  const [dbEvents, setDbEvents] = React.useState([]);
+  const [dbProfiles, setDbProfiles] = React.useState([]);
+  const [myProfile, setMyProfile] = React.useState(null);
+  const [dataLoaded, setDataLoaded] = React.useState(false);
+  const [rsvpMap, setRsvpMap] = React.useState({});
+  React.useEffect(() => {
+    async function load() {
+      const [evts,profs] = await Promise.all([fetchEvents(), fetchProfiles()]);
+      setDbEvents(evts); setDbProfiles(profs);
+      if(userId) {
+        const prof = await getProfile(userId);
+        if(prof) setMyProfile(prof);
+        const {data:myRsvps} = await _sb.from("rsvps").select("event_id").eq("user_id",userId);
+        if(myRsvps) { const m={}; myRsvps.forEach(r=>{m[r.event_id]=true;}); setRsvpMap(m); }
+      }
+      setDataLoaded(true);
     }
-  })();
-  const savedProfiles = (() => {
-    try {
-      const s = localStorage.getItem("pulse_profiles");
-      return s ? JSON.parse(s) : null;
-    } catch (e) {
-      return null;
-    }
-  })();
-  const [isOnboarded, setIsOnboarded] = useState(!!(savedUser && savedUser.name && savedUser.name.trim()));
+    load();
+    const ch = _sb.channel("rsvp-rt").on("postgres_changes",{event:"*",schema:"public",table:"rsvps"},()=>fetchEvents().then(setDbEvents)).subscribe();
+    return ()=>_sb.removeChannel(ch);
+  }, [userId]);
+  const appEvents = dbEvents.length>0 ? dbEvents.map(dbEventToApp) : SAMPLE_EVENTS;
+  const appProfiles = dbProfiles.length>0 ? dbProfiles.map(dbProfileToApp) : SAMPLE_PROFILES;
+  const currentUser = myProfile ? dbProfileToApp(myProfile) : (isGuest ? {...CURRENT_USER,name:"Guest",_isGuest:true} : CURRENT_USER);
+  const needsOnboarding = !isGuest && userId && dataLoaded && myProfile && !myProfile.onboarded;
+  const isNewUser = !isGuest && userId && dataLoaded && !myProfile;
+  const savedUser = null;
+  const savedProfiles = null;
   const [showTour, setShowTour] = React.useState(false);
   const [showCreateEvent, setShowCreateEvent] = React.useState(false);
   const [isDark, setIsDark] = React.useState(() => {
@@ -2503,8 +2606,6 @@ function App() {
     document.body.style.background = isDark ? '#0F172A' : '#F8FAFC';
     try { localStorage.setItem('pulse_dark', isDark?'1':'0'); } catch(e){}
   }, [isDark]);
-  const [currentUser, setCurrentUser] = useState(savedUser || CURRENT_USER);
-  const [profiles, setProfiles] = useState(savedProfiles || SAMPLE_PROFILES);
   const [activePage, setActivePage] = useState("events");
   React.useEffect(() => {
     const handler = () => setActivePage("profile");
@@ -2527,57 +2628,21 @@ function App() {
     document.body.style.margin = "0";
     document.body.style.background = "#F8FAFC";
   }, []);
-  const handleOnboardingComplete = (data) => {
-    const user = {
-      ...CURRENT_USER,
-      name: data.name || CURRENT_USER.name,
-      section: data.section || CURRENT_USER.section,
-      campus: data.campus || "Hyderabad",
-      prevRole: data.prevRole || CURRENT_USER.prevRole,
-      prevCompany: data.prevCompany || CURRENT_USER.prevCompany,
-      industry: data.industry || CURRENT_USER.industry,
-      yearsExp: parseInt(data.yearsExp) || CURRENT_USER.yearsExp,
-      careerGoals: (data.careerGoals || []).length > 0 ? data.careerGoals : CURRENT_USER.careerGoals,
-      skills: (data.skills || []).length > 0 ? data.skills : CURRENT_USER.skills,
-      hobbies: (data.hobbies || []).length > 0 ? data.hobbies : CURRENT_USER.hobbies,
-      undergrad: data.undergrad || CURRENT_USER.undergrad,
-      bio: data.bio || CURRENT_USER.bio,
-      photo: null
-    };
-    setCurrentUser(user);
-    setProfiles((prev) => prev.map((p) => ({ ...p, _rescored: calculateCompatibility(p, user) })));
-    setIsOnboarded(true);
+  const handleOnboardingComplete = async (data) => {
+    const user = { ...CURRENT_USER, name: data.name||CURRENT_USER.name, campus: data.campus||"Hyderabad", careerGoals:(data.careerGoals||[]).length>0?data.careerGoals:CURRENT_USER.careerGoals, hobbies:(data.hobbies||[]).length>0?data.hobbies:CURRENT_USER.hobbies, photo:null };
+    if(userId) { await upsertProfile(userId,{name:user.name,campus:user.campus,career_goals:user.careerGoals,hobbies:user.hobbies,interests:data.interests||[],onboarded:true}); const p=await getProfile(userId); if(p) setMyProfile(p); }
     setShowTour(true);
-    try {
-      localStorage.setItem("pulse_currentUser", JSON.stringify(user));
-    } catch (e) {
-    }
   };
-  if (!isOnboarded) return /* @__PURE__ */ React.createElement(OnboardingFlow, { onComplete: handleOnboardingComplete });
+  if (isNewUser || needsOnboarding) return React.createElement(OnboardingFlow, { onComplete: handleOnboardingComplete });
   const handleViewProfile = (profile) => {
     setSelectedProfile({ ...profile, _backPage: activePage });
     setActivePage("profileDetail");
   };
   const handleUpdateProfile = (updatedProfile) => {
-    setProfiles((prev) => {
-      const next = prev.map((p) => p.id === updatedProfile.id ? updatedProfile : p);
-      try {
-        localStorage.setItem("pulse_profiles", JSON.stringify(next));
-      } catch (e) {
-      }
-      return next;
-    });
     setSelectedProfile(updatedProfile);
   };
   const handleStatusChange = (id, newStatus) => {
-    setProfiles((prev) => {
-      const next = prev.map((p) => p.id === id ? { ...p, contactStatus: newStatus } : p);
-      try {
-        localStorage.setItem("pulse_profiles", JSON.stringify(next));
-      } catch (e) {
-      }
-      return next;
-    });
+    setDbProfiles(prev => prev.map(p => p.id === id ? {...p, contact_status: newStatus} : p));
   };
   const safeBack = (selectedProfile == null ? void 0 : selectedProfile._backPage) || "discover";
   const renderPage = () => {
@@ -2594,14 +2659,14 @@ function App() {
     }
     switch (activePage) {
       case "events":
-        return /* @__PURE__ */ React.createElement(EventsPage, { currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent });
+        return React.createElement(EventsPage, { currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent, appEvents, rsvpMap, userId, onRsvpToggle: async(eid)=>{ if(!userId) return; if(rsvpMap[eid]){await unrsvpEvent(userId,eid);setRsvpMap(p=>{const n={...p};delete n[eid];return n;});}else{await rsvpEvent(userId,eid);setRsvpMap(p=>({...p,[eid]:true}));} const evts=await fetchEvents();setDbEvents(evts);} });
       case "people":
       case "discover":
-        return /* @__PURE__ */ React.createElement(PeoplePage, { profiles, setProfiles, onViewProfile: handleViewProfile, searchQuery, currentUser, onStatusChange: handleStatusChange });
+        return React.createElement(PeoplePage, { profiles:appProfiles, setProfiles:setDbProfiles, onViewProfile:handleViewProfile, searchQuery, currentUser, onStatusChange:handleStatusChange });
       case "network":
-        return /* @__PURE__ */ React.createElement(PeoplePage, { profiles, setProfiles, onViewProfile: handleViewProfile, searchQuery, currentUser, onStatusChange: handleStatusChange, defaultTab: "network" });
+        return React.createElement(PeoplePage, { profiles:appProfiles, setProfiles:setDbProfiles, onViewProfile:handleViewProfile, searchQuery, currentUser, onStatusChange:handleStatusChange, defaultTab:"network" });
       case "profile":
-        return /* @__PURE__ */ React.createElement(MyProfilePage, { currentUser, setCurrentUser, setActivePage });
+        return React.createElement(MyProfilePage, { currentUser, setCurrentUser: async (u) => { if(userId) await upsertProfile(userId,{name:u.name,campus:u.campus,prev_role:u.prevRole,prev_company:u.prevCompany,industry:u.industry,years_exp:u.yearsExp,location:u.location,undergrad:u.undergrad,degree:u.degree,major:u.major,career_goals:u.careerGoals,interests:u.interests,hobbies:u.hobbies,skills:u.skills,photo:u.photo,updated_at:new Date().toISOString()}); const p=await getProfile(userId); if(p) setMyProfile(p); }, setActivePage });
       case "settings":
         return /* @__PURE__ */ React.createElement(SettingsPage, { onReplayTour: () => setShowTour(true), isDark, setIsDark });
       default:
@@ -2624,7 +2689,7 @@ function App() {
     ))));
 }
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(/* @__PURE__ */ React.createElement(App, null));
+root.render(React.createElement(AuthGate, null));
 
   </script>
 </body>
