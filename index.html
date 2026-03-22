@@ -64,8 +64,21 @@ function dbProfileToApp(p) {
 function dbEventToApp(e) {
   if(!e) return null;
   const attendeeNames=(e.rsvps||[]).map(r=>r.profiles?.name).filter(Boolean);
-  var creatorName = (e.creator && e.creator.name) ? e.creator.name : 'ISB Member';
+  var creatorName = (e.creator && e.creator.name) ? cleanName(e.creator.name) : 'ISB';
   return { id:e.id, title:e.title, community:e.community||e.category, category:e.category, location:e.location, date:e.date, time:e.time, timeLabel:e.time_label||e.time, vibe:e.vibe, icon:e.icon||'📅', color:e.color||'#1240a8', maxSpots:e.max_spots, live:e.is_live, attendees:attendeeNames, createdBy:creatorName };
+}
+
+function cleanName(name) {
+  if (!name) return 'Member';
+  if (name.includes('@')) {
+    var base = name.split('@')[0].split('_pgp')[0].split('_')[0];
+    return base.charAt(0).toUpperCase() + base.slice(1);
+  }
+  if (name.includes('_pgp')) {
+    var base = name.split('_pgp')[0].split('_')[0];
+    return base.charAt(0).toUpperCase() + base.slice(1);
+  }
+  return name.split(' ')[0];
 }
 
 function displayName(user) {
@@ -1188,7 +1201,7 @@ function DashboardPage({ profiles, onViewProfile, onStatusChange, setActivePage,
           e.target.style.display = "none";
         }
       }
-    ))), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: event.color, fontWeight: 700 } }, matches.length === 1 ? `${matches[0].split(" ")[0]} is going \u2014 they're a top match` : `${matches[0].split(" ")[0]} + ${matches.length - 1} of your top matches are going`)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex" } }, event.attendees.slice(0, 4).map((name, i) => /* @__PURE__ */ React.createElement(
+    ))), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 12, color: event.color, fontWeight: 700 } }, matches.length === 1 ? `${cleanName(matches[0])} is going \u2014 they're a top match` : `${cleanName(matches[0])} + ${matches.length - 1} of your top matches are going`)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex" } }, event.attendees.slice(0, 4).map((name, i) => /* @__PURE__ */ React.createElement(
       "img",
       {
         key: name,
@@ -1608,8 +1621,8 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
               ? React.createElement("div", { style: { fontSize: 13, color: "#94A3B8", fontStyle: "italic" }}, "Nobody yet \u2014 be the first!")
               : React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 }},
                   event.attendees.map(name => React.createElement("div", { key: name, style: { display: "flex", alignItems: "center", gap: 7, background: isDark ? "#0F172A" : "#F8FAFC", borderRadius: 20, padding: "5px 12px 5px 6px" }},
-                    React.createElement(Avatar, { name, size: 24, radius: 12 }),
-                    React.createElement("span", { style: { fontSize: 12, fontWeight: 600, color: isDark ? "#F1F5F9" : "#0F172A" }}, name.split(" ")[0])
+                    React.createElement(Avatar, { name: cleanName(name), size: 24, radius: 12 }),
+                    React.createElement("span", { style: { fontSize: 12, fontWeight: 600, color: isDark ? "#F1F5F9" : "#0F172A" }}, cleanName(name))
                   ))
                 )
           ),
@@ -2500,7 +2513,7 @@ function OnboardingFlow({ onComplete }) {
       const spots = event.maxSpots - event.attendees.length;
       const firstNames = event.attendees.slice(0, 2).map((n) => n.split(" ")[0]);
       const extra = event.attendees.length - 2;
-      return /* @__PURE__ */ React.createElement("div", { key: event.id, style: { background: "rgba(255,255,255,0.08)", borderRadius: 14, overflow: "hidden", border: `1px solid ${event.color}33` } }, /* @__PURE__ */ React.createElement("div", { style: { background: `linear-gradient(135deg,${event.color},${event.color}BB)`, padding: "10px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "rgba(255,255,255,0.85)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" } }, event.icon, " ", event.community), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 900, color: "#fff", fontFamily: "'Sora',sans-serif", marginTop: 4, letterSpacing: "-0.01em" } }, event.title)), /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "rgba(255,255,255,0.75)", fontWeight: 500 } }, "\u{1F550} ", event.timeLabel, " \xB7 \u{1F4CD} ", event.location), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#fff", fontWeight: 700 } }, event.attendees.length === 0 ? "Be the first to join" : firstNames.join(" \xB7 ") + (extra > 0 ? ` +${extra}` : "") + " going")));
+      return /* @__PURE__ */ React.createElement("div", { key: event.id, style: { background: "rgba(255,255,255,0.08)", borderRadius: 14, overflow: "hidden", border: `1px solid ${event.color}33` } }, /* @__PURE__ */ React.createElement("div", { style: { background: `linear-gradient(135deg,${event.color},${event.color}BB)`, padding: "10px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "rgba(255,255,255,0.85)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" } }, event.icon, " ", event.community), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 900, color: "#fff", fontFamily: "'Sora',sans-serif", marginTop: 4, letterSpacing: "-0.01em" } }, event.title)), /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "rgba(255,255,255,0.75)", fontWeight: 500 } }, "\u{1F550} ", event.timeLabel, " \xB7 \u{1F4CD} ", event.location), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#fff", fontWeight: 700 } }, event.attendees.length === 0 ? "Be the first to join" : firstNames.map(function(n){return cleanName(n);}).join(" \xB7 ") + (extra > 0 ? " +" + extra : "") + " going")));
     })) : /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "30px 0", color: "rgba(255,255,255,0.4)" } }, "No events this week \u2014 check back soon"), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 16, fontSize: 14, color: "rgba(255,255,255,0.55)", textAlign: "center", fontWeight: 600 } }, "More events and people waiting inside \u2192"))
   ];
   const isLast = step === 2;
