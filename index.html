@@ -2573,6 +2573,7 @@ function App({session}) {
   const [dbProfiles, setDbProfiles] = React.useState([]);
   const [myProfile, setMyProfile] = React.useState(null);
   const [dataLoaded, setDataLoaded] = React.useState(false);
+  const [onboardingDone, setOnboardingDone] = React.useState(false);
   const [rsvpMap, setRsvpMap] = React.useState({});
   React.useEffect(() => {
     async function load() {
@@ -2629,6 +2630,8 @@ function App({session}) {
     document.body.style.background = "#F8FAFC";
   }, []);
   const handleOnboardingComplete = async (data) => {
+    setOnboardingDone(true); // immediately exit onboarding screen
+    setShowTour(!data._isGuest);
     try {
       if (userId && !data._isGuest) {
         const careerGoals = (data.careerGoals||[]).length>0 ? data.careerGoals : CURRENT_USER.careerGoals;
@@ -2647,9 +2650,8 @@ function App({session}) {
     } catch(e) {
       console.error("Onboarding save error:", e);
     }
-    setShowTour(true);
   };
-  if (!isGuest && (isNewUser || needsOnboarding)) return React.createElement(OnboardingFlow, { onComplete: handleOnboardingComplete });
+  if (!isGuest && !onboardingDone && (isNewUser || needsOnboarding)) return React.createElement(OnboardingFlow, { onComplete: handleOnboardingComplete });
   const handleViewProfile = (profile) => {
     setSelectedProfile({ ...profile, _backPage: activePage });
     setActivePage("profileDetail");
