@@ -910,7 +910,7 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
         React.createElement("span", { style: { fontSize: 24, lineHeight: 1 }}, "\u26A1"),
         React.createElement("div", null,
           React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 18, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" }}, "Pulse"),
-          React.createElement("div", { style: { color: "#93C5FD", fontSize: 11, fontWeight: 500, letterSpacing: "0.01em", lineHeight: 1.35 }}, "The live pulse of ISB Co‧27")
+          React.createElement("div", { style: { color: "#93C5FD", fontSize: 12, fontWeight: 500, letterSpacing: "0.01em", lineHeight: 1.4 }}, "The live pulse", React.createElement("br"), "of ISB Co‧27")
         )
       )
     ),
@@ -943,7 +943,7 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
     React.createElement("div", { style: { padding: "12px 14px", margin: "0 10px 0", background: "rgba(255,255,255,0.08)", borderRadius: 12 }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 }},
         React.createElement(Avatar, { name: currentUser.name, photo: currentUser.photo, size: 34, radius: 8, extraStyle: { border: "2px solid rgba(255,255,255,0.2)" }}),
-        React.createElement("div", { style: { color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, currentUser.name)
+        React.createElement("div", { style: { color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, currentUser.name && currentUser.name !== "ISB Member" ? currentUser.name : (currentUser.email ? currentUser.email.split("@")[0].replace(/_/g," ") : "My Profile"))
       )
     )
   );
@@ -1503,9 +1503,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
     }catch(e){}
   };
   const toggleJoin = (id) => {
-    var was=!!joined[id];
     setJoined((j)=>({...j,[id]:!j[id]}));
-    if(!was){ var ev=allEvents.find(function(e){return e.id===id;}); if(ev) addToCalendar(ev); }
   };
 
   const applyFilters = (events) => {
@@ -1659,6 +1657,9 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
         ),
         React.createElement("button", { onClick: function(e){ e.stopPropagation(); toggleJoin(event.id); }, style: { width:"100%", padding:"10px", border:hero?"2px solid rgba(255,255,255,0.45)":"none", borderRadius:11, cursor:"pointer", fontWeight:700, fontSize:13, fontFamily:"'Sora',sans-serif", background:isJoined?(hero?"rgba(255,255,255,0.25)":"#ECFDF5"):(hero?"rgba(255,255,255,0.15)":color), color:isJoined?(hero?"#fff":"#059669"):"#fff", transition:"all 0.15s" }},
           isJoined ? "✓ Going" : "Count me in →"
+        ),
+        isJoined && React.createElement("button", { onClick: function(e){ e.stopPropagation(); addToCalendar(event); }, style: { width:"100%", padding:"7px", border:"none", borderRadius:9, cursor:"pointer", fontWeight:600, fontSize:11, fontFamily:"'Sora',sans-serif", background:"transparent", color:hero?"rgba(255,255,255,0.6)":(isDark?"#60A5FA":"#2563EB"), marginTop:4 }},
+          "\uD83D\uDCC5 Add to calendar"
         )
       )
     );
@@ -1751,14 +1752,25 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
     creating && React.createElement(CreateEventModal, {
       newEvt, setNewEvt,
       onClose: () => setCreating(false),
-      onSubmit: () => {
-        const _ct = new Date(); const _cp = n => String(n).padStart(2,"0");
-        const _cdate = _ct.getFullYear()+"-"+_cp(_ct.getMonth()+1)+"-"+_cp(_ct.getDate());
-        const catInfo = EVENT_CATS.find(c => c.id === newEvt.category) || { color: "#1240a8", icon: "\uD83D\uDCC5" };
-        const created = { id: Date.now(), title: newEvt.title, community: newEvt.community || newEvt.category, category: newEvt.category, location: newEvt.location, date: _cdate, time: "18:00", timeLabel: newEvt.timeLabel, campus: "Hyderabad", vibe: newEvt.vibe, createdBy: (currentUser || CURRENT_USER).name, attendees: [(currentUser || CURRENT_USER).name], maxSpots: newEvt.noLimit ? null : parseInt(newEvt.maxSpots) || 15, color: catInfo.color, icon: catInfo.icon };
-        setAllEvents(prev => [created, ...prev]);
-        setCreating(false);
-        setNewEvt({ title: "", community: "", category: "Social", location: "", timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
+      onSubmit: async () => {
+        try {
+          const _ct = new Date(); const _cp = n => String(n).padStart(2,"0");
+          const _cdate = _ct.getFullYear()+"-"+_cp(_ct.getMonth()+1)+"-"+_cp(_ct.getDate());
+          const CAT_COLORS = {"Sports":"#F97316","Social":"#EC4899","Career":"#8B5CF6","Wellness":"#0D9488","Talks":"#0F766E"};
+          const CAT_ICONS = {"Sports":"\uD83C\uDFC3","Social":"\uD83C\uDF89","Career":"\uD83D\uDCBC","Wellness":"\uD83E\uDDD8","Talks":"\uD83C\uDF99"};
+          const catColor = CAT_COLORS[newEvt.category] || "#1240a8";
+          const catIcon = CAT_ICONS[newEvt.category] || "\uD83D\uDCC5";
+          const evtData = { title: newEvt.title || "Untitled Event", community: newEvt.community || newEvt.category, category: newEvt.category, location: newEvt.location, date: _cdate, time: "18:00", time_label: newEvt.timeLabel || "6 PM", vibe: newEvt.vibe, color: catColor, icon: catIcon, max_spots: newEvt.noLimit ? null : parseInt(newEvt.maxSpots) || 15, is_live: false };
+          if (userId) {
+            const {data: saved} = await createEventDB(userId, evtData);
+            if (saved) { const evts = await fetchEvents(); setDbEvents(evts); }
+          } else {
+            const created = { id: Date.now(), ...evtData, timeLabel: evtData.time_label, maxSpots: evtData.max_spots, live: false, attendees: [], createdBy: currentUser.name };
+            setAllEvents(prev => [created, ...prev]);
+          }
+          setCreating(false);
+          setNewEvt({ title: "", community: "", category: "Social", location: "", timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
+        } catch(e) { console.error("Create event error:", e); setCreating(false); }
       }
     }),
 
