@@ -2471,7 +2471,7 @@ function OnboardingFlow({ onComplete }) {
     })) : /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "30px 0", color: "rgba(255,255,255,0.4)" } }, "No events this week \u2014 check back soon"), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 16, fontSize: 14, color: "rgba(255,255,255,0.55)", textAlign: "center", fontWeight: 600 } }, "More events and people waiting inside \u2192"))
   ];
   const isLast = step === 2;
-  return /* @__PURE__ */ React.createElement("div", { style: { minHeight: "100vh", background: "linear-gradient(160deg,#0d1f6e 0%,#1240a8 50%,#1a50c8 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "'Sora',sans-serif" } },  /* @__PURE__ */ React.createElement("div", { style: { width: "100%", maxWidth: 480 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 28, justifyContent: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 26, lineHeight: 1 } }, "\u26A1"), /* @__PURE__ */ React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 20, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" } }, "Pulse")), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginBottom: 20 } }, /* @__PURE__ */ React.createElement("button", { onClick: () => onComplete({ ...CURRENT_USER, _isGuest: true }), style: { background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.25)", borderRadius: 22, padding: "8px 22px", color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Sora',sans-serif", transition: "all 0.15s" }, onMouseEnter: e => e.currentTarget.style.background="rgba(255,255,255,0.18)", onMouseLeave: e => e.currentTarget.style.background="rgba(255,255,255,0.1)" }, "\uD83D\uDC40 Just exploring \u2192")), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", borderRadius: 22, border: "1.5px solid rgba(255,255,255,0.15)", padding: "28px 24px", boxShadow: "0 24px 80px rgba(0,0,0,0.3)" } }, /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 20 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 24, fontWeight: 900, color: "#fff", fontFamily: "'Sora',sans-serif", lineHeight: 1.25, marginBottom: 8, letterSpacing: "-0.02em" } }, STEPS_META[step].heading), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 15, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 } }, STEPS_META[step].sub)), /* @__PURE__ */ React.createElement("div", { key: step, style: { animation: "cardIn 0.25s ease both", overflowY: step===1?"auto":"visible", maxHeight: step===1?"45vh":"none" } }, stepContent[step]), /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement("div", { style: { minHeight: "100vh", background: "linear-gradient(160deg,#0d1f6e 0%,#1240a8 50%,#1a50c8 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "'Sora',sans-serif" } },  /* @__PURE__ */ React.createElement("div", { style: { width: "100%", maxWidth: 480 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 28, justifyContent: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 26, lineHeight: 1 } }, "\u26A1"), /* @__PURE__ */ React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 20, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" } }, "Pulse")), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginBottom: 20 } }, /* @__PURE__ */ React.createElement("button", { onClick: () => onComplete({ _isGuest: true, name: "Guest" }), style: { background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.25)", borderRadius: 22, padding: "8px 22px", color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Sora',sans-serif", transition: "all 0.15s" }, onMouseEnter: e => e.currentTarget.style.background="rgba(255,255,255,0.18)", onMouseLeave: e => e.currentTarget.style.background="rgba(255,255,255,0.1)" }, "\uD83D\uDC40 Just exploring \u2192")), /* @__PURE__ */ React.createElement("div", { style: { background: "rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", borderRadius: 22, border: "1.5px solid rgba(255,255,255,0.15)", padding: "28px 24px", boxShadow: "0 24px 80px rgba(0,0,0,0.3)" } }, /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 20 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 24, fontWeight: 900, color: "#fff", fontFamily: "'Sora',sans-serif", lineHeight: 1.25, marginBottom: 8, letterSpacing: "-0.02em" } }, STEPS_META[step].heading), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 15, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 } }, STEPS_META[step].sub)), /* @__PURE__ */ React.createElement("div", { key: step, style: { animation: "cardIn 0.25s ease both", overflowY: step===1?"auto":"visible", maxHeight: step===1?"45vh":"none" } }, stepContent[step]), /* @__PURE__ */ React.createElement(
     "button",
     {
       onClick: () => {
@@ -2629,11 +2629,27 @@ function App({session}) {
     document.body.style.background = "#F8FAFC";
   }, []);
   const handleOnboardingComplete = async (data) => {
-    const user = { ...CURRENT_USER, name: data.name||CURRENT_USER.name, campus: data.campus||"Hyderabad", careerGoals:(data.careerGoals||[]).length>0?data.careerGoals:CURRENT_USER.careerGoals, hobbies:(data.hobbies||[]).length>0?data.hobbies:CURRENT_USER.hobbies, photo:null };
-    if(userId) { await upsertProfile(userId,{name:user.name,campus:user.campus,career_goals:user.careerGoals,hobbies:user.hobbies,interests:data.interests||[],onboarded:true}); const p=await getProfile(userId); if(p) setMyProfile(p); }
+    try {
+      if (userId && !data._isGuest) {
+        const careerGoals = (data.careerGoals||[]).length>0 ? data.careerGoals : CURRENT_USER.careerGoals;
+        const hobbies = (data.hobbies||data.communities||[]).length>0 ? (data.hobbies||data.communities) : CURRENT_USER.hobbies;
+        await upsertProfile(userId, {
+          name: data.name || CURRENT_USER.name,
+          campus: data.campus || "Hyderabad",
+          career_goals: careerGoals,
+          hobbies: hobbies,
+          interests: data.interests || [],
+          onboarded: true
+        });
+        const p = await getProfile(userId);
+        if (p) setMyProfile(p);
+      }
+    } catch(e) {
+      console.error("Onboarding save error:", e);
+    }
     setShowTour(true);
   };
-  if (isNewUser || needsOnboarding) return React.createElement(OnboardingFlow, { onComplete: handleOnboardingComplete });
+  if (!isGuest && (isNewUser || needsOnboarding)) return React.createElement(OnboardingFlow, { onComplete: handleOnboardingComplete });
   const handleViewProfile = (profile) => {
     setSelectedProfile({ ...profile, _backPage: activePage });
     setActivePage("profileDetail");
