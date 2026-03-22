@@ -71,8 +71,9 @@ function dbEventToApp(e) {
 function displayName(user) {
   if (!user) return 'Member';
   var n = user.name;
-  if (n && n !== 'ISB Member' && n !== 'Guest' && n.trim()) return n;
-  var e = user.email;
+  // If name looks like an email or is a placeholder, extract from email instead
+  if (n && n !== 'ISB Member' && n !== 'Guest' && !n.includes('@') && !n.includes('_pgp') && n.trim()) return n;
+  var e = user.email || (n && n.includes('@') ? n : null);
   if (e) {
     var base = e.split('@')[0].split('_pgp')[0].split('_')[0];
     return base.charAt(0).toUpperCase() + base.slice(1);
@@ -955,7 +956,7 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
     React.createElement(SidebarEvents, { setActivePage }),
     React.createElement("div", { style: { padding: "12px 14px", margin: "0 10px 0", background: "rgba(255,255,255,0.08)", borderRadius: 12 }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 }},
-        React.createElement(Avatar, { name: currentUser.name, photo: currentUser.photo, size: 34, radius: 8, extraStyle: { border: "2px solid rgba(255,255,255,0.2)" }}),
+        React.createElement(Avatar, { name: displayName(currentUser), photo: currentUser.photo, size: 34, radius: 8, extraStyle: { border: "2px solid rgba(255,255,255,0.2)" }}),
         React.createElement("div", { style: { color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, displayName(currentUser))
       )
     )
@@ -1068,7 +1069,7 @@ function TopBar({ searchQuery, setSearchQuery, activePage, currentUser, setActiv
       })
     ),
     React.createElement(BellDropdown, { currentUser }),
-    React.createElement("div", { onClick: function(){ if(setActivePage) setActivePage("profile"); }, style: { cursor: "pointer" }}, React.createElement(Avatar, { name: currentUser.name, photo: currentUser.photo, size: 38, radius: 10, extraStyle: { border: "2px solid #003A8F" }}))
+    React.createElement("div", { onClick: function(){ if(setActivePage) setActivePage("profile"); }, style: { cursor: "pointer" }}, React.createElement(Avatar, { name: displayName(currentUser), photo: currentUser.photo, size: 38, radius: 10, extraStyle: { border: "2px solid #003A8F" }}))
   );
 }
 
@@ -1586,7 +1587,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
         ),
         React.createElement("div", { style: { padding: "20px 24px" }},
           React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }},
-            [{ icon: "\uD83D\uDD50", label: "Time", val: event.timeLabel }, { icon: "\uD83D\uDCCD", label: "Location", val: event.location }, { icon: "\uD83D\uDC64", label: "Organiser", val: (event.createdBy && event.createdBy !== "ISB Member") ? event.createdBy : (currentUser && currentUser.email ? displayName(currentUser) : "ISB Member") }, { icon: "\uD83C\uDF9F", label: "Spots", val: event.maxSpots === null ? "Open to all" : spots <= 0 ? "Full" : `${spots} of ${event.maxSpots} left` }]
+            [{ icon: "\uD83D\uDD50", label: "Time", val: event.timeLabel }, { icon: "\uD83D\uDCCD", label: "Location", val: event.location }, { icon: "\uD83D\uDC64", label: "Organiser", val: (event.createdBy && event.createdBy !== "ISB Member") ? event.createdBy : "ISB" }, { icon: "\uD83C\uDF9F", label: "Spots", val: event.maxSpots === null ? "Open to all" : spots <= 0 ? "Full" : `${spots} of ${event.maxSpots} left` }]
             .map(({ icon, label, val }) => React.createElement("div", { key: label, style: { background: isDark ? "#0F172A" : "#F8FAFC", borderRadius: 12, padding: "12px 14px" }},
               React.createElement("div", { style: { fontSize: 10, color: "#94A3B8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}, icon, " ", label),
               React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: isDark ? "#F1F5F9" : "#0F172A" }}, val)
