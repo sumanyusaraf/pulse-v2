@@ -1797,9 +1797,9 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
           const evtData = { title: newEvt.title || "Untitled Event", community: newEvt.community || newEvt.category, category: newEvt.category, location: newEvt.location, date: _cdate, time: "18:00", time_label: newEvt.timeLabel || "6 PM", vibe: newEvt.vibe, color: catColor, icon: catIcon, max_spots: newEvt.noLimit ? null : parseInt(newEvt.maxSpots) || 15, is_live: false };
           if (userId) {
             const {data: saved} = await createEventDB(userId, evtData);
-            if (saved && onEventCreated) await onEventCreated();
+            if (saved) { await rsvpEvent(userId, saved.id); if(onEventCreated) await onEventCreated(); }
           } else {
-            const created = { id: Date.now(), ...evtData, timeLabel: evtData.time_label, maxSpots: evtData.max_spots, live: false, attendees: [], createdBy: currentUser.name };
+            const created = { id: Date.now(), ...evtData, timeLabel: evtData.time_label, maxSpots: evtData.max_spots, live: false, attendees: [displayName(currentUser)], createdBy: displayName(currentUser) };
             setAllEvents(prev => [created, ...prev]);
           }
           setCreating(false);
