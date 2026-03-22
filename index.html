@@ -910,7 +910,7 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
         React.createElement("span", { style: { fontSize: 24, lineHeight: 1 }}, "\u26A1"),
         React.createElement("div", null,
           React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 18, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" }}, "Pulse"),
-          React.createElement("div", { style: { color: "#93C5FD", fontSize: 12, fontWeight: 500, letterSpacing: "0.01em", lineHeight: 1.4 }}, "The live pulse", React.createElement("br"), "of ISB Co‧27")
+          React.createElement("div", { style: { color: "#93C5FD", fontSize: 12, fontWeight: 500, letterSpacing: "0.01em", lineHeight: 1.4, marginTop: 4 }}, "The live pulse", React.createElement("br"), "of ISB Co‧27")
         )
       )
     ),
@@ -943,7 +943,7 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
     React.createElement("div", { style: { padding: "12px 14px", margin: "0 10px 0", background: "rgba(255,255,255,0.08)", borderRadius: 12 }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 }},
         React.createElement(Avatar, { name: currentUser.name, photo: currentUser.photo, size: 34, radius: 8, extraStyle: { border: "2px solid rgba(255,255,255,0.2)" }}),
-        React.createElement("div", { style: { color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, currentUser.name && currentUser.name !== "ISB Member" ? currentUser.name : (currentUser.email ? currentUser.email.split("@")[0].replace(/_/g," ") : "My Profile"))
+        React.createElement("div", { style: { color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, (currentUser.name && currentUser.name !== "ISB Member" && currentUser.name !== "Guest") ? currentUser.name : (currentUser.email ? currentUser.email.split("_pgp")[0].replace(/_/g," ") : "My Profile"))
       )
     )
   );
@@ -1430,7 +1430,7 @@ function PastEventCard({event,isDark,evtRes,setEvtRes}){
     )
   );
 }
-function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent }) {
+function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent, appEvents, rsvpMap, userId, onRsvpToggle, onEventCreated }) {
   const isDark = useTheme();
   const isMobile = useMobile();
   const [joined, setJoined] = React.useState({});
@@ -1443,7 +1443,8 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
     window.addEventListener("pulse:createEvent", h);
     return function(){ window.removeEventListener("pulse:createEvent", h); };
   }, []);
-  const [allEvents, setAllEvents] = React.useState(SAMPLE_EVENTS);
+  const [allEvents, setAllEvents] = React.useState(appEvents || SAMPLE_EVENTS);
+  React.useEffect(function(){ if(appEvents && appEvents.length>0) setAllEvents(appEvents); }, [appEvents]);
   const [newEvt, setNewEvt] = React.useState({ title: "", community: "", category: "Social", location: "", timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
 
   // Live counter — ticks up every 5s to feel alive
@@ -1763,7 +1764,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
           const evtData = { title: newEvt.title || "Untitled Event", community: newEvt.community || newEvt.category, category: newEvt.category, location: newEvt.location, date: _cdate, time: "18:00", time_label: newEvt.timeLabel || "6 PM", vibe: newEvt.vibe, color: catColor, icon: catIcon, max_spots: newEvt.noLimit ? null : parseInt(newEvt.maxSpots) || 15, is_live: false };
           if (userId) {
             const {data: saved} = await createEventDB(userId, evtData);
-            if (saved) { const evts = await fetchEvents(); setDbEvents(evts); }
+            if (saved && onEventCreated) await onEventCreated();
           } else {
             const created = { id: Date.now(), ...evtData, timeLabel: evtData.time_label, maxSpots: evtData.max_spots, live: false, attendees: [], createdBy: currentUser.name };
             setAllEvents(prev => [created, ...prev]);
@@ -2689,7 +2690,7 @@ function App({session}) {
     }
     switch (activePage) {
       case "events":
-        return React.createElement(EventsPage, { currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent, appEvents, rsvpMap, userId, onRsvpToggle: async(eid)=>{ if(!userId) return; if(rsvpMap[eid]){await unrsvpEvent(userId,eid);setRsvpMap(p=>{const n={...p};delete n[eid];return n;});}else{await rsvpEvent(userId,eid);setRsvpMap(p=>({...p,[eid]:true}));} const evts=await fetchEvents();setDbEvents(evts);} });
+        return React.createElement(EventsPage, { currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent, appEvents, rsvpMap, userId, onRsvpToggle: async(eid)=>{ if(!userId) return; if(rsvpMap[eid]){await unrsvpEvent(userId,eid);setRsvpMap(p=>{const n={...p};delete n[eid];return n;});}else{await rsvpEvent(userId,eid);setRsvpMap(p=>({...p,[eid]:true}));} const evts=await fetchEvents();setDbEvents(evts);}, onEventCreated: async()=>{ const evts=await fetchEvents(); setDbEvents(evts); } });
       case "people":
       case "discover":
         return React.createElement(PeoplePage, { profiles:appProfiles, setProfiles:setDbProfiles, onViewProfile:handleViewProfile, searchQuery, currentUser, onStatusChange:handleStatusChange });
