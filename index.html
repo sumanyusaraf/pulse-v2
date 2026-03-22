@@ -1626,9 +1626,13 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
                   ))
                 )
           ),
-          React.createElement("button", { onClick: () => { toggleJoin(event.id); setSelectedEvt(null); }, style: { width: "100%", padding: "14px", border: "none", borderRadius: 13, cursor: "pointer", fontWeight: 800, fontSize: 15, fontFamily: "'Sora',sans-serif", background: isJoined ? "#ECFDF5" : color, color: isJoined ? "#059669" : "#fff", boxShadow: isJoined ? "none" : `0 4px 20px ${color}44` }},
-            isJoined ? "\u2713 You're going \u2014 tap to leave" : "Join this event \u2192"
-          )
+          (function(){
+            var isOrg = event.createdBy && event.createdBy === displayName(currentUser);
+            if (isOrg) return React.createElement("div", { style: { width:"100%", padding:"14px", borderRadius:13, background:"#ECFDF5", color:"#059669", fontWeight:800, fontSize:15, textAlign:"center", fontFamily:"'Sora',sans-serif" }}, "\u2726 You organised this event");
+            return React.createElement("button", { onClick: () => { toggleJoin(event.id); setSelectedEvt(null); }, style: { width:"100%", padding:"14px", border:"none", borderRadius:13, cursor:"pointer", fontWeight:800, fontSize:15, fontFamily:"'Sora',sans-serif", background:isJoined?"#ECFDF5":color, color:isJoined?"#059669":"#fff", boxShadow:isJoined?"none":`0 4px 20px ${color}44` }},
+              isJoined ? "\u2713 You're going \u2014 tap to leave" : "Join this event \u2192"
+            );
+          })()
         )
       )
     );
@@ -1689,9 +1693,13 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
             going+" going"+(event.maxSpots&&spots>0?" · "+spots+" spots left":event.maxSpots&&spots<=0?" · Full":"")
           )
         ),
-        React.createElement("button", { onClick: function(e){ e.stopPropagation(); toggleJoin(event.id); }, style: { width:"100%", padding:"10px", border:hero?"2px solid rgba(255,255,255,0.45)":"none", borderRadius:11, cursor:"pointer", fontWeight:700, fontSize:13, fontFamily:"'Sora',sans-serif", background:isJoined?(hero?"rgba(255,255,255,0.25)":"#ECFDF5"):(hero?"rgba(255,255,255,0.15)":color), color:isJoined?(hero?"#fff":"#059669"):"#fff", transition:"all 0.15s" }},
-          isJoined ? "✓ Going" : "Count me in →"
-        ),
+        (function(){
+          var isOrganiser = event.createdBy && event.createdBy === displayName(currentUser);
+          if (isOrganiser) return React.createElement("div", { style: { width:"100%", padding:"10px", borderRadius:11, background:hero?"rgba(255,255,255,0.15)":"#ECFDF5", color:hero?"#fff":"#059669", fontSize:13, fontWeight:700, textAlign:"center", fontFamily:"'Sora',sans-serif" }}, "✦ You organised this");
+          return React.createElement("button", { onClick: function(e){ e.stopPropagation(); toggleJoin(event.id); }, style: { width:"100%", padding:"10px", border:hero?"2px solid rgba(255,255,255,0.45)":"none", borderRadius:11, cursor:"pointer", fontWeight:700, fontSize:13, fontFamily:"'Sora',sans-serif", background:isJoined?(hero?"rgba(255,255,255,0.25)":"#ECFDF5"):(hero?"rgba(255,255,255,0.15)":color), color:isJoined?(hero?"#fff":"#059669"):"#fff", transition:"all 0.15s" }},
+            isJoined ? "✓ Going" : "Count me in →"
+          );
+        })(),
         isJoined && React.createElement("button", { onClick: function(e){ e.stopPropagation(); addToCalendar(event); }, style: { width:"100%", padding:"7px", border:"none", borderRadius:9, cursor:"pointer", fontWeight:600, fontSize:11, fontFamily:"'Sora',sans-serif", background:"transparent", color:hero?"rgba(255,255,255,0.6)":(isDark?"#60A5FA":"#2563EB"), marginTop:4 }},
           "\uD83D\uDCC5 Add to calendar"
         )
