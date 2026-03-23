@@ -1531,9 +1531,12 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
       var d = (ev.date || new Date().toISOString().slice(0,10)).replace(/-/g,"");
       var startHr = ev.time ? ev.time.split(":")[0].padStart(2,"0") : "12";
       var startMin = ev.time ? ev.time.split(":")[1].padStart(2,"0") : "00";
-      var endHr = String((parseInt(startHr) + 2) % 24).padStart(2,"0");
+      var endHrNum = parseInt(startHr) + 2;
+      var endDate = d;
+      if (endHrNum >= 24) { endHrNum = endHrNum - 24; var nd = new Date(ev.date||new Date().toISOString().slice(0,10)); nd.setDate(nd.getDate()+1); endDate = nd.toISOString().slice(0,10).replace(/-/g,""); }
+      var endHr = String(endHrNum).padStart(2,"0");
       var start = d + "T" + startHr + startMin + "00";
-      var end   = d + "T" + endHr   + startMin + "00";
+      var end   = endDate + "T" + endHr + startMin + "00";
       var url = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
         "&text=" + encodeURIComponent(ev.title || "ISB Event") +
         "&dates=" + start + "/" + end +
