@@ -35,36 +35,38 @@
     }
   </style>
   <script>
-  (function() {
-    var canvas = document.createElement('canvas');
-    canvas.width = 64; canvas.height = 64;
-    var ctx = canvas.getContext('2d');
-    // Background
-    ctx.fillStyle = '#003A8F';
-    ctx.beginPath();
-    ctx.roundRect(0, 0, 64, 64, 14);
-    ctx.fill();
-    // EKG line
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 4.5;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(3, 32);
-    ctx.lineTo(14, 32);
-    ctx.lineTo(19, 13);
-    ctx.lineTo(27, 51);
-    ctx.lineTo(35, 3);
-    ctx.lineTo(42, 44);
-    ctx.lineTo(48, 32);
-    ctx.lineTo(61, 32);
-    ctx.stroke();
-    var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-    link.type = 'image/png';
-    link.rel = 'shortcut icon';
-    link.href = canvas.toDataURL();
-    document.head.appendChild(link);
-  })();
+  function setPulseFavicon() {
+    try {
+      var canvas = document.createElement('canvas');
+      canvas.width = 64; canvas.height = 64;
+      var ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#003A8F';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, 64, 64, 14);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 5;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(3, 32); ctx.lineTo(14, 32); ctx.lineTo(19, 13);
+      ctx.lineTo(27, 51); ctx.lineTo(35, 3); ctx.lineTo(42, 44);
+      ctx.lineTo(48, 32); ctx.lineTo(61, 32);
+      ctx.stroke();
+      var existing = document.querySelectorAll("link[rel*='icon']");
+      existing.forEach(function(l){ l.parentNode.removeChild(l); });
+      var link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/png';
+      link.href = canvas.toDataURL('image/png');
+      document.head.appendChild(link);
+    } catch(e) {}
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setPulseFavicon);
+  } else {
+    setPulseFavicon();
+  }
   </script>
   <script>document.title = "Pulse";</script>
 </head>
@@ -1127,6 +1129,7 @@ function StatCard({ label, value, color, icon }) {
   return /* @__PURE__ */ React.createElement("div", { style: { background: "#fff", borderRadius: 14, border: "1px solid #EEF2F7", padding: "18px 20px", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" } }, /* @__PURE__ */ React.createElement("div", { style: { width: 44, height: 44, borderRadius: 12, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 } }, icon), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 26, fontWeight: 800, color: "#0F172A", fontFamily: "'Sora', sans-serif", lineHeight: 1 } }, value), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#64748B", marginTop: 2 } }, label)));
 }
 function DashboardPage({ profiles, onViewProfile, onStatusChange, setActivePage, currentUser }) {
+  const isDark = useTheme();
   const today = /* @__PURE__ */ new Date();
   today.setHours(0, 0, 0, 0);
   const todayStr = today.toISOString().split("T")[0];
@@ -1520,7 +1523,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
   // Live counter — ticks up every 5s to feel alive
   const liveEvent = allEvents.find(e => e.live);
   const [liveCount, setLiveCount] = React.useState(liveEvent ? liveEvent.attendees.length : 0);
-  const liveNames = liveEvent ? [...liveEvent.attendees, "Meera Iyer", "Tanvi Mehrotra", "Rohan Gupta", "Ananya Krishnan"] : [];
+  const liveNames = liveEvent ? liveEvent.attendees : [];
   const [liveNameIdx, setLiveNameIdx] = React.useState(0);
   const [liveMinsAgo, setLiveMinsAgo] = React.useState(2);
   React.useEffect(() => {
@@ -2245,6 +2248,7 @@ function ProfileField({ label, value, onChange, textarea = false, editing }) {
   ) : /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: value ? "#0F172A" : "#94A3B8", fontWeight: value ? 600 : 400, padding: "8px 0", fontStyle: value ? "normal" : "italic" } }, value || "\u2014"));
 }
 function ProfileSection({ title, children }) {
+  const isDark = useTheme();
   return /* @__PURE__ */ React.createElement("div", { style: { background: isDark?"#1E293B":"#fff", borderRadius: 14, border: "1px solid "+(isDark?"#334155":"#EEF2F7"), padding: "20px", marginBottom: 16 } }, /* @__PURE__ */ React.createElement("h4", { style: { margin: "0 0 16px", fontSize: 14, fontWeight: 800, color: isDark?"#F1F5F9":"#0F172A", fontFamily: "'Sora',sans-serif" } }, title), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 } }, children));
 }
 function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
