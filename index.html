@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pulse</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003A8F'/><polyline points='5,50 22,50 30,20 42,80 54,5 66,68 75,50 95,50' stroke='white' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+  <link rel="alternate icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAABN0lEQVR4nO2WQUoDQRCFX8cDeAEP4EHEnMCTuHMhCh7AozdwIV5A8AAuXHkIF14hKwhJJiEJZBEECwkJBBERREgiLuYPzJDpzMxm9kHBg6FI9f/3qqurJY7jOI7j/CcA9oFbYAocpP4lUCTAFLgDFkAvgHvgMYA18Ax0Qns7oBeaAAfAGLgGhqE9AI5Ce5DSHjgFbsLEK2ANWISmgHVoD1gAS2AFrAJL4AhYhPbAN2AG2IemgHVoCliH9oAlcAKmQAHMgTVgDuyCc2AHrAEbwBiYhfYAuALugHVoD1iH9oAVcAtMgGdgBxyCc2AHrAFrwAiYhPYAuALugDVoD1iH9oAVcAtMgGdgBxyCc2AHrAFrwAgYh/YAuALugDVoD1iH9oAVcAtMgGdgBxyCc2AHrAFrwAgYhfYAuALugDVoD1gBc+AX0wEqMTAOdXEAAAAASUVORK5CYII=" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
@@ -33,6 +34,38 @@
       html { font-size: 14px; }
     }
   </style>
+  <script>
+  (function() {
+    var canvas = document.createElement('canvas');
+    canvas.width = 64; canvas.height = 64;
+    var ctx = canvas.getContext('2d');
+    // Background
+    ctx.fillStyle = '#003A8F';
+    ctx.beginPath();
+    ctx.roundRect(0, 0, 64, 64, 14);
+    ctx.fill();
+    // EKG line
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 4.5;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(3, 32);
+    ctx.lineTo(14, 32);
+    ctx.lineTo(19, 13);
+    ctx.lineTo(27, 51);
+    ctx.lineTo(35, 3);
+    ctx.lineTo(42, 44);
+    ctx.lineTo(48, 32);
+    ctx.lineTo(61, 32);
+    ctx.stroke();
+    var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/png';
+    link.rel = 'shortcut icon';
+    link.href = canvas.toDataURL();
+    document.head.appendChild(link);
+  })();
+  </script>
   <script>document.title = "Pulse";</script>
 </head>
 <body>
@@ -2711,18 +2744,30 @@ function App({session}) {
     document.body.style.background = "#F8FAFC";
   }, []);
   const handleOnboardingComplete = async (data) => {
-    setOnboardingDone(true); // immediately exit onboarding screen
+    // Build a local profile immediately so the app renders right away
+    const localProfile = {
+      id: userId,
+      email: session && session.user ? session.user.email : null,
+      name: data.name || null,
+      campus: data.campus || "Hyderabad",
+      career_goals: data.careerGoals || [],
+      hobbies: data.hobbies || data.communities || [],
+      interests: data.interests || [],
+      onboarded: true,
+      skills: [],
+    };
+    if (!data._isGuest) setMyProfile(localProfile);
+    setOnboardingDone(true);
     setShowTour(!data._isGuest);
+    // Save to DB in background
     try {
       if (userId && !data._isGuest) {
-        const careerGoals = (data.careerGoals||[]).length>0 ? data.careerGoals : CURRENT_USER.careerGoals;
-        const hobbies = (data.hobbies||data.communities||[]).length>0 ? (data.hobbies||data.communities) : CURRENT_USER.hobbies;
         await upsertProfile(userId, {
-          name: data.name || CURRENT_USER.name,
-          campus: data.campus || "Hyderabad",
-          career_goals: careerGoals,
-          hobbies: hobbies,
-          interests: data.interests || [],
+          name: localProfile.name,
+          campus: localProfile.campus,
+          career_goals: localProfile.career_goals,
+          hobbies: localProfile.hobbies,
+          interests: localProfile.interests,
           onboarded: true
         });
         const p = await getProfile(userId);
