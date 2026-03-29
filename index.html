@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pulse</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003A8F'/><text y='.9em' font-size='70' x='12' fill='white' font-weight='900' font-family='system-ui'>P</text></svg>" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003A8F'/><polyline points='5,50 22,50 30,20 42,80 54,5 66,68 75,50 95,50' stroke='white' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003A8F'/><polyline points='5,50 22,50 30,20 42,80 54,5 66,68 75,50 95,50' stroke='white' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
@@ -882,13 +881,14 @@ function BottomNav({ activePage, setActivePage, onAddEvent }) {
   );
 }
 
-function SidebarEvents({ setActivePage, onOpenEvent }) {
+function SidebarEvents({ setActivePage, appEvents, onOpenEvent }) {
   const todayStr = (function(){ var d=new Date(); return d.getFullYear()+"-"+(""+(d.getMonth()+1)).padStart(2,"0")+"-"+(""+d.getDate()).padStart(2,"0"); })();
   const tomorrowStr = (function(){ var d=new Date(); d.setDate(d.getDate()+1); return d.getFullYear()+"-"+(""+(d.getMonth()+1)).padStart(2,"0")+"-"+(""+d.getDate()).padStart(2,"0"); })();
-  var todayEvts = SAMPLE_EVENTS.filter(function(e){ return !e.live && e.date===todayStr; }).slice(0,3);
-  var tomorrowEvts = SAMPLE_EVENTS.filter(function(e){ return e.date===tomorrowStr; }).slice(0,3);
-  var upcomingEvts = SAMPLE_EVENTS.filter(function(e){ return !e.live && e.date>todayStr; }).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
-  var liveEvt = SAMPLE_EVENTS.find(function(e){ return e.live; });
+  var evtSrc = (appEvents && appEvents.length>0) ? appEvents : [];
+  var todayEvts = evtSrc.filter(function(e){ return !e.live && e.date===todayStr; }).slice(0,3);
+  var tomorrowEvts = evtSrc.filter(function(e){ return e.date===tomorrowStr; }).slice(0,3);
+  var upcomingEvts = evtSrc.filter(function(e){ return !e.live && e.date>todayStr; }).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
+  var liveEvt = evtSrc.find(function(e){ return e.live; });
   var label = todayEvts.length > 0 ? "Today" : tomorrowEvts.length > 0 ? "Tomorrow" : "Coming Up";
   var evts = todayEvts.length > 0 ? todayEvts : tomorrowEvts.length > 0 ? tomorrowEvts : upcomingEvts;
   return React.createElement("div", { style: { margin: "8px 10px 14px", flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }},
@@ -923,7 +923,7 @@ function SidebarEvents({ setActivePage, onOpenEvent }) {
   );
 }
 
-function Sidebar({ activePage, setActivePage, currentUser }) {
+function Sidebar({ activePage, setActivePage, currentUser, appEvents }) {
   const isDark = useTheme();
   const items = [
     { id: "events",  label: "Events",  icon: Icon.Calendar || Icon.Dashboard },
@@ -972,7 +972,7 @@ function Sidebar({ activePage, setActivePage, currentUser }) {
         );
       })
     ),
-    React.createElement(SidebarEvents, { setActivePage, onOpenEvent: function(e){ window.__pulseOpenEvent = e; setActivePage("events"); setTimeout(function(){ window.dispatchEvent(new CustomEvent("pulse:openEvent", {detail: e})); }, 100); } }),
+    React.createElement(SidebarEvents, { setActivePage, appEvents, onOpenEvent: function(e){ window.__pulseOpenEvent = e; setActivePage("events"); setTimeout(function(){ window.dispatchEvent(new CustomEvent("pulse:openEvent", {detail: e})); }, 100); } }),
     React.createElement("div", { style: { padding: "12px 14px", margin: "0 10px 0", background: "rgba(255,255,255,0.08)", borderRadius: 12 }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 }},
         React.createElement(Avatar, { name: displayName(currentUser), photo: currentUser.photo, size: 34, radius: 8, extraStyle: { border: "2px solid rgba(255,255,255,0.2)" }}),
@@ -987,7 +987,7 @@ function BellDropdown({ currentUser }) {
   const joined = React.useMemo(() => {
     try { return JSON.parse(localStorage.getItem('pulse_joined') || '{}'); } catch(e) { return {}; }
   }, [open]);
-  const joinedEvents = SAMPLE_EVENTS.filter(e => joined[e.id]);
+  const joinedEvents = [];
   const count = joinedEvents.length;
   return /* @__PURE__ */ React.createElement("div", { style: { position: "relative" } },
     /* @__PURE__ */ React.createElement("button", {
@@ -1109,8 +1109,8 @@ function DashboardPage({ profiles, onViewProfile, onStatusChange, setActivePage,
     const d = /* @__PURE__ */ new Date(dateStr + "T00:00:00");
     return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
   };
-  const todayEvents = SAMPLE_EVENTS.filter((e) => e.date === todayStr);
-  const upcomingEvents = SAMPLE_EVENTS.filter((e) => e.date !== todayStr);
+  const todayEvents = [];
+  const upcomingEvents = [];
   const byDay = {};
   upcomingEvents.forEach((e) => {
     if (!byDay[e.date]) byDay[e.date] = [];
@@ -1121,7 +1121,7 @@ function DashboardPage({ profiles, onViewProfile, onStatusChange, setActivePage,
   const followUps = profiles.filter((p) => p.contactStatus === "Follow-up scheduled");
   const unmet = profiles.filter((p) => p.contactStatus === "Not contacted");
   const topUnmet = [...unmet].map((p) => ({ ...p, score: calculateCompatibility(p, currentUser || CURRENT_USER) })).sort((a, b) => b.score - a.score).slice(0, 3);
-  const myTopGoal = (currentUser || CURRENT_USER).careerGoals[0];
+  const myTopGoal = (currentUser && currentUser.careerGoals && currentUser.careerGoals[0]) || null;
   const sharingGoal = unmet.filter((p) => (p.careerGoals||[]).includes(myTopGoal));
   const compatibleNames = useMemo(
     () => profiles.map((p) => ({ name: p.name, score: calculateCompatibility(p, currentUser || CURRENT_USER) })).filter((p) => p.score >= 55).map((p) => p.name),
@@ -1480,7 +1480,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
     window.addEventListener("pulse:openEvent", h);
     return function(){ window.removeEventListener("pulse:openEvent", h); };
   }, []);
-  const [allEvents, setAllEvents] = React.useState(appEvents || SAMPLE_EVENTS);
+  const [allEvents, setAllEvents] = React.useState(appEvents || []);
   React.useEffect(function(){ if(appEvents && appEvents.length>0) setAllEvents(appEvents); }, [appEvents]);
   const [newEvt, setNewEvt] = React.useState({ title: "", community: "", category: "Social", location: "", timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
 
@@ -1501,9 +1501,10 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
   }, []);
 
   const matchPool = React.useMemo(() => {
+    if (!appProfiles || appProfiles.length === 0) return [];
     const cu = currentUser || CURRENT_USER;
-    return SAMPLE_PROFILES.map((p) => ({ name: p.name, score: calculateCompatibility(p, cu) })).filter((p) => p.score >= 55);
-  }, [currentUser]);
+    return appProfiles.map((p) => ({ name: p.name, score: calculateCompatibility(p, cu) })).filter((p) => p.score >= 55);
+  }, [currentUser, appProfiles]);
   const matchPoolNames = matchPool.map((p) => p.name);
 
   const _now = new Date();
@@ -1931,7 +1932,7 @@ function DiscoverPage({ profiles, setProfiles, onViewProfile, searchQuery, curre
   };
   const today = new Date(); today.setHours(0,0,0,0);
   const todayStr = today.toISOString().split("T")[0];
-  const todayEvents = SAMPLE_EVENTS.filter(e => e.date === todayStr);
+  const todayEvents = [];
   const attendingTodayMap = useMemo(() => {
     const map = {};
     todayEvents.forEach(e => e.attendees.forEach(n => { if (!map[n]) map[n] = e.title; }));
@@ -2487,9 +2488,7 @@ function OnboardingFlow({ onComplete }) {
   const COMMUNITIES = COMMUNITY_GROUPS.flatMap((g) => g.items);
   const relevantEvents = React.useMemo(() => {
     const picked = data.communities;
-    if (picked.length === 0) return SAMPLE_EVENTS.slice(0, 3);
-    const matched = SAMPLE_EVENTS.filter((e) => picked.includes(e.community));
-    return matched.length > 0 ? matched.slice(0, 3) : SAMPLE_EVENTS.slice(0, 3);
+    return [];
   }, [data.communities]);
   const canContinue = [
     (data.name || "").trim() && data.campus,
@@ -2497,7 +2496,7 @@ function OnboardingFlow({ onComplete }) {
     true
   ][step];
   const STEPS_META = [
-    { heading: "Welcome to Pulse \u{1F44B}", sub: "ISB Co'27 \xB7 Takes 30 seconds" },
+    { heading: "Welcome to Pulse \u{1F44B}", sub: "ISB Co'27 \xB7 30 seconds to set up" },
     { heading: "What are you into? \u{1F3AF}", sub: "Pick up to 10 \u2014 this personalises your events feed" },
     { heading: "Here's what's on this week \u2728", sub: "Events matched to your interests" }
   ];
@@ -2672,8 +2671,8 @@ function App({session}) {
     const ch = _sb.channel("rsvp-rt").on("postgres_changes",{event:"*",schema:"public",table:"rsvps"},()=>fetchEvents().then(setDbEvents)).subscribe();
     return ()=>_sb.removeChannel(ch);
   }, [userId]);
-  const appEvents = dbEvents.length>0 ? dbEvents.map(dbEventToApp) : SAMPLE_EVENTS;
-  const appProfiles = dbProfiles.length>0 ? dbProfiles.map(dbProfileToApp) : SAMPLE_PROFILES;
+  const appEvents = dbEvents.map(dbEventToApp);
+  const appProfiles = dbProfiles.map(dbProfileToApp);
   const profiles = appProfiles; // alias for backward compat
   const currentUser = myProfile ? dbProfileToApp(myProfile) : (isGuest ? {...CURRENT_USER,name:"Guest",_isGuest:true} : CURRENT_USER);
   const needsOnboarding = !isGuest && userId && dataLoaded && myProfile && !myProfile.onboarded;
@@ -2780,7 +2779,7 @@ function App({session}) {
     /* @__PURE__ */ React.createElement(React.Fragment, null,
     showTour && /* @__PURE__ */ React.createElement(ProductTour, { onClose: () => setShowTour(false) }),
     /* @__PURE__ */ React.createElement("div", { style: { display: "flex", minHeight: "100vh", background: isDark?"#0F172A":"#F8FAFC", fontFamily: "'Sora',sans-serif" } },
-      React.createElement(Sidebar, { activePage: navPage, setActivePage: handleNav, currentUser }),
+      React.createElement(Sidebar, { activePage: navPage, setActivePage: handleNav, currentUser, appEvents }),
       React.createElement("div", { style: { marginLeft: isMobile ? 0 : 220, flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh" } },
         React.createElement(TopBar, { searchQuery, setSearchQuery, activePage: activePage === "profileDetail" ? "discover" : activePage, currentUser, setActivePage: handleNav }),
         React.createElement("main", { style: { flex: 1, overflowY: "auto", paddingBottom: isMobile ? 60 : 0 } }, renderPage()),
