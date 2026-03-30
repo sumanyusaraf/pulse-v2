@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pulse</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23003A8F'/><polyline points='5,50 22,50 30,20 42,80 54,5 66,68 75,50 95,50' stroke='white' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚡</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
@@ -33,50 +33,7 @@
       html { font-size: 14px; }
     }
   </style>
-  <script>
-  function setPulseFavicon() {
-    try {
-      var canvas = document.createElement('canvas');
-      canvas.width = 64; canvas.height = 64;
-      var ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#003A8F';
-      var r = 14;
-      ctx.beginPath();
-      ctx.moveTo(r, 0);
-      ctx.lineTo(64-r, 0);
-      ctx.quadraticCurveTo(64, 0, 64, r);
-      ctx.lineTo(64, 64-r);
-      ctx.quadraticCurveTo(64, 64, 64-r, 64);
-      ctx.lineTo(r, 64);
-      ctx.quadraticCurveTo(0, 64, 0, 64-r);
-      ctx.lineTo(0, r);
-      ctx.quadraticCurveTo(0, 0, r, 0);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 5;
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(3, 32); ctx.lineTo(14, 32); ctx.lineTo(19, 13);
-      ctx.lineTo(27, 51); ctx.lineTo(35, 3); ctx.lineTo(42, 44);
-      ctx.lineTo(48, 32); ctx.lineTo(61, 32);
-      ctx.stroke();
-      var existing = document.querySelectorAll("link[rel*='icon']");
-      existing.forEach(function(l){ l.parentNode.removeChild(l); });
-      var link = document.createElement('link');
-      link.rel = 'icon';
-      link.type = 'image/png';
-      link.href = canvas.toDataURL('image/png');
-      document.head.appendChild(link);
-    } catch(e) {}
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setPulseFavicon);
-  } else {
-    setPulseFavicon();
-  }
-  </script>
+
   <script>document.title = "Pulse";</script>
 </head>
 <body>
@@ -992,7 +949,7 @@ function Sidebar({ activePage, setActivePage, currentUser, appEvents }) {
       )
     ),
     React.createElement("nav", { style: { padding: "8px 10px" }},
-      React.createElement("button", { onClick: function(){ window.dispatchEvent(new CustomEvent("pulse:createEvent")); }, style: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "11px 12px", borderRadius: 10, border: "none", marginBottom: 12, background: "linear-gradient(135deg,rgba(255,255,255,0.22),rgba(255,255,255,0.12))", color: "#fff", cursor: "pointer", fontFamily: "'Sora',sans-serif", fontSize: 13, fontWeight: 700 }}, "+ Create Event"),
+      React.createElement("button", { onClick: function(){ window.dispatchEvent(new CustomEvent("pulse:createEvent")); window.dispatchEvent(new CustomEvent("pulse:createEvent:global")); }, style: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "11px 12px", borderRadius: 10, border: "none", marginBottom: 12, background: "linear-gradient(135deg,rgba(255,255,255,0.22),rgba(255,255,255,0.12))", color: "#fff", cursor: "pointer", fontFamily: "'Sora',sans-serif", fontSize: 13, fontWeight: 700 }}, "+ Create Event"),
       items.map(({ id, label, icon: IconComp }) => {
         const active = activePage === id || (id === 'people' && (activePage === 'discover' || activePage === 'network'));
         return React.createElement("button", {
@@ -1364,14 +1321,15 @@ function DashboardPage({ profiles, onViewProfile, onStatusChange, setActivePage,
   )))));
 }
 const EVENT_TIMES = [
-  "12 AM","12:30 AM","1 AM","1:30 AM","2 AM","2:30 AM",
-  "3 AM","3:30 AM","4 AM","4:30 AM","5 AM","5:30 AM",
-  "6 AM","6:30 AM","7 AM","7:30 AM","8 AM","8:30 AM",
-  "9 AM","9:30 AM","10 AM","10:30 AM","11 AM","11:30 AM",
+  "10 AM","10:30 AM","11 AM","11:30 AM",
   "12 PM","12:30 PM","1 PM","1:30 PM","2 PM","2:30 PM",
   "3 PM","3:30 PM","4 PM","4:30 PM","5 PM","5:30 PM",
   "6 PM","6:30 PM","7 PM","7:30 PM","8 PM","8:30 PM",
-  "9 PM","9:30 PM","10 PM","10:30 PM","11 PM","11:30 PM"
+  "9 PM","9:30 PM","10 PM","10:30 PM","11 PM","11:30 PM",
+  "12 AM","12:30 AM","1 AM","1:30 AM","2 AM","2:30 AM",
+  "3 AM","3:30 AM","4 AM","4:30 AM","5 AM","5:30 AM",
+  "6 AM","6:30 AM","7 AM","7:30 AM","8 AM","8:30 AM",
+  "9 AM","9:30 AM"
 ];
 const EVENT_CATS = [
   { id: "Sports", label: "Sports", icon: "\u{1F3C3}", color: "#F97316" },
@@ -1383,7 +1341,7 @@ const EVENT_CATS = [
 function CreateEventModal({ newEvt, setNewEvt, onClose, onSubmit }) {
   const isDark = useTheme();
   const setF = (k, v) => setNewEvt((p) => ({ ...p, [k]: v }));
-  const canCreate = (newEvt.title || "").trim() && newEvt.category && (newEvt.location || "").trim() && (newEvt.timeLabel || "").trim();
+  const canCreate = (newEvt.title || "").trim() && newEvt.category && (newEvt.location || "").trim() && (newEvt.timeLabel || "").trim() && newEvt.date;
   const inputStyle = { width: "100%", padding: "10px 13px", border: "1.5px solid "+(isDark?"#334155":"#E2E8F0"), borderRadius: 10, fontSize: 13, outline: "none", fontFamily: "inherit", color: isDark?"#F1F5F9":"#0F172A", background: isDark?"#1E293B":"#fff", boxSizing: "border-box" };
   const labelStyle = { display: "block", fontSize: 11, color: "#64748B", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 };
   return /* @__PURE__ */ React.createElement(
@@ -1426,7 +1384,7 @@ function CreateEventModal({ newEvt, setNewEvt, onClose, onSubmit }) {
           placeholder: "e.g. Block 3 Common Room, Dhaba Lawn",
           style: inputStyle
         }
-      )), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: labelStyle }, "Time \u2731"), /* @__PURE__ */ React.createElement(
+      )), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: labelStyle }, "Date \u2731"), /* @__PURE__ */ React.createElement("input", { type: "date", value: newEvt.date || todayDate, min: todayDate, onChange: (e) => setF("date", e.target.value), style: { ...inputStyle, cursor: "pointer" } })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: labelStyle }, "Time \u2731"), /* @__PURE__ */ React.createElement(
         "select",
         {
           value: newEvt.timeLabel || "",
@@ -1515,6 +1473,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
   const [selectedEvt, setSelectedEvt] = React.useState(null);
   const [creating, setCreating] = React.useState(false);
   React.useEffect(function(){ if(showCreateEvent){ setCreating(true); if(setShowCreateEvent) setShowCreateEvent(false); } }, [showCreateEvent]);
+  React.useEffect(function(){ function h(){ setCreating(true); } window.addEventListener("pulse:createEvent",h); return function(){ window.removeEventListener("pulse:createEvent",h); }; }, []);
   React.useEffect(function(){
     function h(){ setCreating(true); }
     window.addEventListener("pulse:createEvent", h);
@@ -1527,7 +1486,8 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
   }, []);
   const [allEvents, setAllEvents] = React.useState(appEvents || []);
   React.useEffect(function(){ if(appEvents && appEvents.length>0) setAllEvents(appEvents); }, [appEvents]);
-  const [newEvt, setNewEvt] = React.useState({ title: "", community: "", category: "Social", location: "", timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
+  const todayDate = new Date().toISOString().slice(0,10);
+  const [newEvt, setNewEvt] = React.useState({ title: "", community: "", category: "Social", location: "", date: todayDate, timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
 
   // Live counter — ticks up every 5s to feel alive
   const liveEvent = allEvents.find(e => e.live);
@@ -1875,7 +1835,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
             setAllEvents(prev => [created, ...prev]);
           }
           setCreating(false);
-          setNewEvt({ title: "", community: "", category: "Social", location: "", timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
+          setNewEvt({ title: "", community: "", category: "Social", location: "", date: new Date().toISOString().slice(0,10), timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
         } catch(e) { console.error("Create event error:", e); setCreating(false); }
       }
     }),
@@ -2263,10 +2223,19 @@ function ProfileSection({ title, children }) {
 function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
   const isDark = useTheme();
   const isMobile = useMobile();
-  const [draft, setDraft] = React.useState(currentUser || CURRENT_USER);
+  const cleanDraftName = (u) => {
+    if (!u) return CURRENT_USER;
+    var n = u.name;
+    // If name looks like an email or pgp username, clear it so user fills it fresh
+    if (!n || n.includes('@') || n.includes('_pgp') || n === 'ISB Member' || n === 'Guest') {
+      return {...u, name: ''};
+    }
+    return u;
+  };
+  const [draft, setDraft] = React.useState(cleanDraftName(currentUser) || CURRENT_USER);
   const [saved, setSaved] = React.useState(false);
   const fileInputRef = React.useRef(null);
-  React.useEffect(() => { setDraft(currentUser || CURRENT_USER); }, [currentUser]);
+  React.useEffect(() => { setDraft(cleanDraftName(currentUser) || CURRENT_USER); }, [currentUser]);
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -2289,10 +2258,9 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
   const toggleGoal = (g) => setDraft(p => { const cur = p.careerGoals||[]; return {...p, careerGoals: cur.includes(g) ? cur.filter(x=>x!==g) : [...cur,g]}; });
   const ALL_HOBBIES = ["Cricket","Football","Tennis","Badminton","Squash","Running","Cycling","Swimming","Gym","Yoga","Chess","Poker","Board Games","Reading","Music","Photography","Travel","Cooking","Gaming","F1","Investing","Podcasts","Art","Dance","Biking","Movies","Hiking","Volunteering","Wine Tasting","Food"];
   const toggleHobby = (h) => setDraft(p => { const cur = p.hobbies||[]; return {...p, hobbies: cur.includes(h) ? cur.filter(x=>x!==h) : [...cur,h]}; });
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (setCurrentUser) {
-      setCurrentUser(draft);
-      try { localStorage.setItem("pulse_currentUser", JSON.stringify(draft)); } catch(e){}
+      await setCurrentUser(draft);
     }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -2740,6 +2708,14 @@ function App({session}) {
     window.addEventListener("goToProfile", handler);
     return () => window.removeEventListener("goToProfile", handler);
   }, []);
+  React.useEffect(() => {
+    const handler = () => {
+      setActivePage("events");
+      setShowCreateEvent(true);
+    };
+    window.addEventListener("pulse:createEvent:global", handler);
+    return () => window.removeEventListener("pulse:createEvent:global", handler);
+  }, []);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = React.useState(() => window.innerWidth < 768);
@@ -2841,7 +2817,7 @@ function App({session}) {
       React.createElement("div", { style: { marginLeft: isMobile ? 0 : 220, flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh" } },
         React.createElement(TopBar, { searchQuery, setSearchQuery, activePage: activePage === "profileDetail" ? "discover" : activePage, currentUser, setActivePage: handleNav }),
         React.createElement("main", { style: { flex: 1, overflowY: "auto", paddingBottom: isMobile ? 60 : 0 } }, renderPage()),
-        isMobile && React.createElement(BottomNav, { activePage: navPage, setActivePage: handleNav, onAddEvent: function(){ handleNav("events"); setTimeout(function(){ window.dispatchEvent(new CustomEvent("pulse:createEvent")); },50); } })
+        isMobile && React.createElement(BottomNav, { activePage: navPage, setActivePage: handleNav, onAddEvent: function(){ handleNav("events"); setTimeout(function(){ window.dispatchEvent(new CustomEvent("pulse:createEvent")); window.dispatchEvent(new CustomEvent("pulse:createEvent:global")); },50); } })
       )
     ))));
 }
