@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU5ErkJggg==" type="image/png">
+  <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU5ErkJggg==">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pulse</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚡</text></svg>">
+<text y='28' font-size='28'>⚡</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
@@ -35,6 +37,23 @@
   </style>
 
   <script>document.title = "Pulse";</script>
+  <script>
+  (function(){
+    var c=document.createElement('canvas');c.width=64;c.height=64;
+    var x=c.getContext('2d');
+    x.fillStyle='#003A8F';
+    x.beginPath();x.moveTo(14,0);x.lineTo(50,0);x.quadraticCurveTo(64,0,64,14);
+    x.lineTo(64,50);x.quadraticCurveTo(64,64,50,64);x.lineTo(14,64);
+    x.quadraticCurveTo(0,64,0,50);x.lineTo(0,14);x.quadraticCurveTo(0,0,14,0);
+    x.closePath();x.fill();
+    x.strokeStyle='#fff';x.lineWidth=5;x.lineJoin='round';x.lineCap='round';
+    x.beginPath();x.moveTo(3,32);x.lineTo(14,32);x.lineTo(19,13);
+    x.lineTo(27,51);x.lineTo(35,3);x.lineTo(42,44);x.lineTo(48,32);x.lineTo(61,32);
+    x.stroke();
+    var png=c.toDataURL('image/png');
+    document.querySelectorAll("link[rel*='icon']").forEach(function(l){l.href=png;});
+  })();
+  </script>
 </head>
 <body>
   <div id="root"></div>
@@ -1347,13 +1366,13 @@ function CreateEventModal({ newEvt, setNewEvt, onClose, onSubmit }) {
   return /* @__PURE__ */ React.createElement(
     "div",
     {
-      style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 },
+      style: { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 },
       onClick: onClose
     },
     /* @__PURE__ */ React.createElement(
       "div",
       {
-        style: { background: "#fff", borderRadius: 22, width: "100%", maxWidth: 460, padding: "24px", boxShadow: "0 24px 60px rgba(0,0,0,0.25)", maxHeight: "90vh", overflowY: "auto" },
+        style: { background: isDark?"#1E293B":"#fff", borderRadius: 22, width: "100%", maxWidth: 460, padding: "24px", boxShadow: "0 24px 60px rgba(0,0,0,0.25)", maxHeight: "90vh", overflowY: "auto" },
         onClick: (e) => e.stopPropagation()
       },
       /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 900, color: "#0F172A", fontFamily: "'Sora',sans-serif" } }, "Create Event"), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: { background: "#F1F5F9", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" } }, "\u2715")),
@@ -2227,7 +2246,7 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
     if (!u) return CURRENT_USER;
     var n = u.name;
     // If name looks like an email or pgp username, clear it so user fills it fresh
-    if (!n || n.includes('@') || n.includes('_pgp') || n === 'ISB Member' || n === 'Guest') {
+    if (!n || n.includes('@') || n.includes('_pgp') || n === 'ISB Member' || n === 'Guest' || (n.includes('_') && !n.includes(' '))) {
       return {...u, name: ''};
     }
     return u;
@@ -2711,7 +2730,9 @@ function App({session}) {
   React.useEffect(() => {
     const handler = () => {
       setActivePage("events");
-      setShowCreateEvent(true);
+      setTimeout(function(){
+        window.dispatchEvent(new CustomEvent("pulse:createEvent"));
+      }, 150);
     };
     window.addEventListener("pulse:createEvent:global", handler);
     return () => window.removeEventListener("pulse:createEvent:global", handler);
