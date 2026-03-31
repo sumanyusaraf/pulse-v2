@@ -72,11 +72,6 @@ const _sb = (typeof supabase !== "undefined")
   })
   : null;
 
-async function signInWithMagicLink(email) {
-  if (!_sb) return { error: { message: 'Service unavailable. Please refresh.' } };
-  if (!email.toLowerCase().endsWith('@isb.edu')) return { error: { message: 'Only @isb.edu emails are allowed.' } };
-  return await _sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href.split('#')[0] } });
-}
 async function signOut() { await _sb.auth.signOut(); window.location.reload(); }
 async function getProfile(uid) { const {data} = await _sb.from('profiles').select('*').eq('id',uid).single(); return data; }
 async function upsertProfile(uid, p) { return await _sb.from('profiles').upsert({id:uid,...p,updated_at:new Date().toISOString()}); }
@@ -1000,10 +995,18 @@ function Sidebar({ activePage, setActivePage, currentUser, appEvents }) {
       })
     ),
     React.createElement(SidebarEvents, { setActivePage, appEvents, onOpenEvent: function(e){ window.__pulseOpenEvent = e; setActivePage("events"); setTimeout(function(){ window.dispatchEvent(new CustomEvent("pulse:openEvent", {detail: e})); }, 100); } }),
-    React.createElement("div", { style: { padding: "12px 14px", margin: "0 10px 0", background: "rgba(255,255,255,0.08)", borderRadius: 12 }},
+    React.createElement("div", {
+      onClick: () => setActivePage("profile"),
+      style: { padding: "12px 14px", margin: "0 10px 0", background: "rgba(255,255,255,0.08)", borderRadius: 12, cursor: "pointer", transition: "background 0.15s" },
+      onMouseEnter: e => e.currentTarget.style.background = "rgba(255,255,255,0.15)",
+      onMouseLeave: e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"
+    },
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 }},
         React.createElement(Avatar, { name: displayName(currentUser), photo: currentUser.photo, size: 34, radius: 8, extraStyle: { border: "2px solid rgba(255,255,255,0.2)" }}),
-        React.createElement("div", { style: { color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, displayName(currentUser))
+        React.createElement("div", { style: { flex: 1, minWidth: 0 }},
+          React.createElement("div", { style: { color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.01em" }}, displayName(currentUser)),
+          React.createElement("div", { style: { color: "rgba(255,255,255,0.4)", fontSize: 10, marginTop: 1 }}, "View profile →")
+        )
       )
     )
   );
@@ -1366,6 +1369,7 @@ const EVENT_CATS = [
 ];
 function CreateEventModal({ newEvt, setNewEvt, onClose, onSubmit }) {
   const isDark = useTheme();
+  const todayDate = new Date().toISOString().slice(0,10);
   const setF = (k, v) => setNewEvt((p) => ({ ...p, [k]: v }));
   const canCreate = (newEvt.title || "").trim() && newEvt.category && (newEvt.location || "").trim() && (newEvt.timeLabel || "").trim() && newEvt.date;
   const inputStyle = { width: "100%", padding: "10px 13px", border: "1.5px solid "+(isDark?"#334155":"#E2E8F0"), borderRadius: 10, fontSize: 13, outline: "none", fontFamily: "inherit", color: isDark?"#F1F5F9":"#0F172A", background: isDark?"#1E293B":"#fff", boxSizing: "border-box" };
@@ -2640,9 +2644,11 @@ function OBField({ label, value, onChange, placeholder, type = "text" }) {
 function AuthGate() {
   const [session, setSession] = React.useState(undefined);
   const [email, setEmail] = React.useState('');
-  const [sent, setSent] = React.useState(false);
+  const [code, setCode] = React.useState('');
+  const [step, setStep] = React.useState('email'); // 'email' | 'code'
   const [loading, setLoading] = React.useState(false);
   const [authError, setAuthError] = React.useState('');
+  const codeRef = React.useRef(null);
 
   React.useEffect(() => {
     if (!_sb) { setSession(null); return; }
@@ -2651,51 +2657,84 @@ function AuthGate() {
     return () => subscription.unsubscribe();
   }, []);
 
+  React.useEffect(() => {
+    if (step === 'code' && codeRef.current) setTimeout(() => codeRef.current && codeRef.current.focus(), 100);
+  }, [step]);
+
   if (session === undefined) return React.createElement('div', {style:{minHeight:'100vh',background:'linear-gradient(160deg,#0d1f6e,#1240a8,#1a50c8)',display:'flex',alignItems:'center',justifyContent:'center'}},
     React.createElement('div', {style:{color:'#fff',fontFamily:"'Sora',sans-serif",fontSize:16}}, 'Loading Pulse...')
   );
 
   if (session) return React.createElement(App, {session});
 
-  function handleSend() {
-    if(!email.trim()) return;
+  async function handleSendCode() {
+    if (!email.trim()) return;
+    if (!email.trim().toLowerCase().endsWith('@isb.edu')) { setAuthError('Only @isb.edu emails are allowed.'); return; }
     setLoading(true); setAuthError('');
-    signInWithMagicLink(email.trim()).then(({error:err}) => {
-      setLoading(false);
-      if(err) setAuthError(err.message); else setSent(true);
-    });
+    const { error } = await _sb.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true } });
+    setLoading(false);
+    if (error) setAuthError(error.message);
+    else { setStep('code'); setCode(''); }
   }
+
+  async function handleVerifyCode() {
+    if (!code.trim()) return;
+    setLoading(true); setAuthError('');
+    const { error } = await _sb.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: 'email' });
+    setLoading(false);
+    if (error) setAuthError('Incorrect code — please try again, or request a new one.');
+  }
+
+  const Logo = React.createElement('div', {style:{display:'flex',alignItems:'center',gap:12,justifyContent:'center',marginBottom:32}},
+    React.createElement('svg', {width:40,height:40,viewBox:'0 0 32 32'},
+      React.createElement('rect', {width:32,height:32,rx:8,fill:'rgba(255,255,255,0.18)'}),
+      React.createElement('polyline', {points:'3,16 9,16 12,8 16.5,24 20,4 23.5,19 26,16 29,16',stroke:'white',strokeWidth:2.4,fill:'none',strokeLinecap:'round',strokeLinejoin:'round'})
+    ),
+    React.createElement('div', null,
+      React.createElement('div', {style:{color:'#fff',fontWeight:900,fontSize:26,letterSpacing:'-0.02em'}}, 'Pulse'),
+      React.createElement('div', {style:{color:'#93C5FD',fontSize:12,fontWeight:500}}, 'The live pulse of ISB Co\u202727')
+    )
+  );
+
+  const cardStyle = {background:'rgba(255,255,255,0.08)',backdropFilter:'blur(20px)',borderRadius:22,border:'1.5px solid rgba(255,255,255,0.15)',padding:'32px 28px',boxShadow:'0 24px 80px rgba(0,0,0,0.3)'};
+  const inputStyle = {width:'100%',padding:'13px 16px',borderRadius:12,border:'1.5px solid rgba(255,255,255,0.2)',background:'rgba(255,255,255,0.1)',color:'#fff',fontSize:15,fontFamily:"'Sora',sans-serif",outline:'none',boxSizing:'border-box',marginBottom:12};
+  const btnStyle = (disabled) => ({width:'100%',padding:'14px',border:'none',borderRadius:12,background:disabled?'rgba(255,255,255,0.15)':'linear-gradient(135deg,#3B82F6,#2563EB)',color:'#fff',fontSize:15,fontWeight:800,cursor:disabled?'not-allowed':'pointer',fontFamily:"'Sora',sans-serif",marginBottom:16,opacity:disabled?0.7:1});
 
   return React.createElement('div', {style:{minHeight:'100vh',background:'linear-gradient(160deg,#0d1f6e 0%,#1240a8 50%,#1a50c8 100%)',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',fontFamily:"'Sora',sans-serif"}},
     React.createElement('div', {style:{width:'100%',maxWidth:420}},
-      React.createElement('div', {style:{display:'flex',alignItems:'center',gap:12,justifyContent:'center',marginBottom:32}},
-        React.createElement('svg', {width:40,height:40,viewBox:'0 0 32 32'},
-          React.createElement('rect', {width:32,height:32,rx:8,fill:'rgba(255,255,255,0.18)'}),
-          React.createElement('polyline', {points:'3,16 9,16 12,8 16.5,24 20,4 23.5,19 26,16 29,16',stroke:'white',strokeWidth:2.4,fill:'none',strokeLinecap:'round',strokeLinejoin:'round'})
-        ),
-        React.createElement('div', null,
-          React.createElement('div', {style:{color:'#fff',fontWeight:900,fontSize:26,letterSpacing:'-0.02em'}}, 'Pulse'),
-          React.createElement('div', {style:{color:'#93C5FD',fontSize:12,fontWeight:500}}, 'The live pulse of ISB Co\u202727')
-        )
-      ),
-      !sent ? React.createElement('div', {style:{background:'rgba(255,255,255,0.08)',backdropFilter:'blur(20px)',borderRadius:22,border:'1.5px solid rgba(255,255,255,0.15)',padding:'32px 28px',boxShadow:'0 24px 80px rgba(0,0,0,0.3)'}},
-        React.createElement('div', {style:{fontSize:22,fontWeight:900,color:'#fff',marginBottom:8,letterSpacing:'-0.01em'}}, 'Welcome \uD83D\uDC4B'),
-        React.createElement('div', {style:{fontSize:14,color:'rgba(255,255,255,0.6)',marginBottom:24,lineHeight:1.6}}, 'Enter your ISB email to get a magic login link. No password needed.'),
-        React.createElement('label', {style:{display:'block',fontSize:11,color:'rgba(255,255,255,0.6)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:8}}, 'ISB Email'),
-        React.createElement('input', {type:'email',value:email,onChange:e=>setEmail(e.target.value),onKeyDown:e=>e.key==='Enter'&&!loading&&handleSend(),placeholder:'yourname@isb.edu',style:{width:'100%',padding:'13px 16px',borderRadius:12,border:'1.5px solid rgba(255,255,255,0.2)',background:'rgba(255,255,255,0.1)',color:'#fff',fontSize:15,fontFamily:"'Sora',sans-serif",outline:'none',boxSizing:'border-box',marginBottom:12}}),
-        authError && React.createElement('div', {style:{fontSize:13,color:'#FCA5A5',marginBottom:12,fontWeight:600}}, authError),
-        React.createElement('button', {onClick:handleSend,disabled:loading||!email.trim(),style:{width:'100%',padding:'14px',border:'none',borderRadius:12,background:loading?'rgba(255,255,255,0.15)':'linear-gradient(135deg,#3B82F6,#2563EB)',color:'#fff',fontSize:15,fontWeight:800,cursor:loading?'not-allowed':'pointer',fontFamily:"'Sora',sans-serif",marginBottom:16}},
-          loading ? 'Sending...' : 'Send login link \u2192'
-        ),
-        React.createElement('div', {style:{textAlign:'center'}},
-          React.createElement('button', {onClick:()=>setSession({_guest:true}),style:{background:'none',border:'none',color:'rgba(255,255,255,0.45)',fontSize:13,cursor:'pointer',fontFamily:"'Sora',sans-serif"}}, '\uD83D\uDC40 Just exploring \u2192')
-        )
-      ) : React.createElement('div', {style:{background:'rgba(255,255,255,0.08)',backdropFilter:'blur(20px)',borderRadius:22,border:'1.5px solid rgba(255,255,255,0.15)',padding:'32px 28px',textAlign:'center',boxShadow:'0 24px 80px rgba(0,0,0,0.3)'}},
-        React.createElement('div', {style:{fontSize:48,marginBottom:16}}, '\uD83D\uDCE7'),
-        React.createElement('div', {style:{fontSize:20,fontWeight:900,color:'#fff',marginBottom:8}}, 'Check your inbox!'),
-        React.createElement('div', {style:{fontSize:14,color:'rgba(255,255,255,0.6)',lineHeight:1.6,marginBottom:20}}, 'We sent a login link to ', React.createElement('strong', {style:{color:'#93C5FD'}}, email), '. Click it to sign in.'),
-        React.createElement('button', {onClick:()=>{setSent(false);setEmail('');},style:{background:'none',border:'none',color:'rgba(255,255,255,0.45)',fontSize:13,cursor:'pointer',fontFamily:"'Sora',sans-serif"}}, '\u2190 Use a different email')
-      )
+      Logo,
+      step === 'email'
+        ? React.createElement('div', {style:cardStyle},
+            React.createElement('div', {style:{fontSize:22,fontWeight:900,color:'#fff',marginBottom:8,letterSpacing:'-0.01em'}}, 'Welcome \uD83D\uDC4B'),
+            React.createElement('div', {style:{fontSize:14,color:'rgba(255,255,255,0.6)',marginBottom:24,lineHeight:1.6}}, 'Enter your ISB email — we\u2019ll send you a 6-digit code to sign in instantly. No password needed.'),
+            React.createElement('label', {style:{display:'block',fontSize:11,color:'rgba(255,255,255,0.6)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:8}}, 'ISB Email'),
+            React.createElement('input', {type:'email',value:email,onChange:e=>setEmail(e.target.value),onKeyDown:e=>e.key==='Enter'&&!loading&&handleSendCode(),placeholder:'yourname@isb.edu',style:inputStyle}),
+            authError && React.createElement('div', {style:{fontSize:13,color:'#FCA5A5',marginBottom:12,fontWeight:600}}, authError),
+            React.createElement('button', {onClick:handleSendCode,disabled:loading||!email.trim(),style:btnStyle(loading||!email.trim())},
+              loading ? 'Sending code...' : 'Send code \u2192'
+            ),
+            React.createElement('div', {style:{textAlign:'center'}},
+              React.createElement('button', {onClick:()=>setSession({_guest:true}),style:{background:'none',border:'none',color:'rgba(255,255,255,0.45)',fontSize:13,cursor:'pointer',fontFamily:"'Sora',sans-serif"}}, '\uD83D\uDC40 Just exploring \u2192')
+            )
+          )
+        : React.createElement('div', {style:cardStyle},
+            React.createElement('div', {style:{fontSize:36,marginBottom:12,textAlign:'center'}}, '\uD83D\uDCEC'),
+            React.createElement('div', {style:{fontSize:20,fontWeight:900,color:'#fff',marginBottom:8,textAlign:'center'}}, 'Check your email'),
+            React.createElement('div', {style:{fontSize:14,color:'rgba(255,255,255,0.6)',lineHeight:1.6,marginBottom:24,textAlign:'center'}},
+              'We sent a 6-digit code to ',
+              React.createElement('strong', {style:{color:'#93C5FD'}}, email),
+              '. Enter it below.'
+            ),
+            React.createElement('label', {style:{display:'block',fontSize:11,color:'rgba(255,255,255,0.6)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:8,textAlign:'center'}}, 'Your 6-digit code'),
+            React.createElement('input', {ref:codeRef,type:'text',inputMode:'numeric',pattern:'[0-9]*',maxLength:6,value:code,onChange:e=>setCode(e.target.value.replace(/\D/g,'')),onKeyDown:e=>e.key==='Enter'&&!loading&&handleVerifyCode(),placeholder:'000000',style:{...inputStyle,fontSize:28,letterSpacing:'0.3em',textAlign:'center',fontWeight:800}}),
+            authError && React.createElement('div', {style:{fontSize:13,color:'#FCA5A5',marginBottom:12,fontWeight:600,textAlign:'center'}}, authError),
+            React.createElement('button', {onClick:handleVerifyCode,disabled:loading||code.length<6,style:btnStyle(loading||code.length<6)},
+              loading ? 'Verifying...' : 'Sign in \u2192'
+            ),
+            React.createElement('div', {style:{textAlign:'center'}},
+              React.createElement('button', {onClick:()=>{setStep('email');setAuthError('');setCode('');},style:{background:'none',border:'none',color:'rgba(255,255,255,0.45)',fontSize:13,cursor:'pointer',fontFamily:"'Sora',sans-serif"}}, '\u2190 Use a different email')
+            )
+          )
     )
   );
 }
