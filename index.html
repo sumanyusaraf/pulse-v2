@@ -6,7 +6,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pulse</title>
-<text y='28' font-size='28'>⚡</text></svg>">
+<text y='28' font-size='28'>⚡</text></svg>" type="image/svg+xml">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
@@ -81,7 +81,7 @@ async function createEventDB(uid,evt) { const {data,error} = await _sb.from('eve
 
 function dbProfileToApp(p) {
   if(!p) return null;
-  return { id:p.id, name:p.name||'ISB Member', email:p.email, prevRole:p.prev_role, prevCompany:p.prev_company, industry:p.industry, yearsExp:p.years_exp, location:p.location, campus:p.campus, undergrad:p.undergrad, degree:p.degree, major:p.major, careerGoals:p.career_goals||[], interests:p.interests||[], hobbies:p.hobbies||[], skills:p.skills||[], photo:p.photo, contactStatus:'Not contacted', followUpDate:null, interactions:[], notes:'' };
+  return { id:p.id, name:(p.name && p.name !== 'ISB Member' && !p.name.includes('@') && !p.name.includes('_pgp') && p.name.trim()) ? p.name : (p.email ? (function(e){var b=e.split('@')[0].split('_pgp')[0]; return b.split('_').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');})(p.email) : (p.name ? (function(n){if(n.includes('_pgp')){var b=n.split('_pgp')[0]; return b.split('_').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');}if(n.includes('@')){var b=n.split('@')[0].split('_pgp')[0]; return b.split('_').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');}return n;})(p.name) : 'ISB Member'), email:p.email, prevRole:p.prev_role, prevCompany:p.prev_company, industry:p.industry, yearsExp:p.years_exp, location:p.location, campus:p.campus, undergrad:p.undergrad, degree:p.degree, major:p.major, careerGoals:p.career_goals||[], interests:p.interests||[], hobbies:p.hobbies||[], skills:p.skills||[], photo:p.photo, contactStatus:'Not contacted', followUpDate:null, interactions:[], notes:'' };
 }
 function dbEventToApp(e) {
   if(!e) return null;
@@ -2245,9 +2245,14 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
   const cleanDraftName = (u) => {
     if (!u) return CURRENT_USER;
     var n = u.name;
-    // If name looks like an email or pgp username, clear it so user fills it fresh
-    if (!n || n.includes('@') || n.includes('_pgp') || n === 'ISB Member' || n === 'Guest' || (n.includes('_') && !n.includes(' '))) {
+    // If name looks like an email or pgp username, convert to proper name
+    if (!n || n === 'ISB Member' || n === 'Guest') {
       return {...u, name: ''};
+    }
+    if (n.includes('@') || n.includes('_pgp') || (n.includes('_') && !n.includes(' '))) {
+      var base = n.split('@')[0].split('_pgp')[0];
+      var proper = base.split('_').filter(Boolean).map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');
+      return {...u, name: proper};
     }
     return u;
   };
@@ -2588,7 +2593,7 @@ function OnboardingFlow({ onComplete }) {
     {
       onClick: () => {
         if (isLast) {
-          onComplete({ ...data, hobbies: data.communities });
+          onComplete({ ...data, hobbies: data.communities, interests: data.communities });
         } else setStep((s) => s + 1);
       },
       disabled: !canContinue,
@@ -2599,7 +2604,7 @@ function OnboardingFlow({ onComplete }) {
       onMouseLeave: (e) => e.currentTarget.style.transform = "translateY(0)"
     },
     isLast ? "Let's go \u2192" : "Continue \u2192"
-  ), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } }, step > 0 ? /* @__PURE__ */ React.createElement("button", { onClick: () => setStep((s) => s - 1), style: { fontSize: 12, color: "rgba(255,255,255,0.4)", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 } }, "\u2190 Back") : /* @__PURE__ */ React.createElement("div", null), isLast && /* @__PURE__ */ React.createElement("button", { onClick: () => onComplete({ ...data, hobbies: data.communities }), style: { fontSize: 12, color: "rgba(255,255,255,0.3)", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" } }, "Skip for now"))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "center", gap: 8, marginTop: 20 } }, [0, 1, 2].map((i) => /* @__PURE__ */ React.createElement("div", { key: i, style: { width: i === step ? 24 : 8, height: 8, borderRadius: 4, background: i === step ? "#60A5FA" : i < step ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)", transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)" } }))), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginTop: 14, fontSize: 11, color: "rgba(255,255,255,0.28)" } }, "\u{1F512} Only visible to ISB Co'27")));
+  ), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } }, step > 0 ? /* @__PURE__ */ React.createElement("button", { onClick: () => setStep((s) => s - 1), style: { fontSize: 12, color: "rgba(255,255,255,0.4)", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 } }, "\u2190 Back") : /* @__PURE__ */ React.createElement("div", null), isLast && /* @__PURE__ */ React.createElement("button", { onClick: () => onComplete({ ...data, hobbies: data.communities, interests: data.communities }), style: { fontSize: 12, color: "rgba(255,255,255,0.3)", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" } }, "Skip for now"))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "center", gap: 8, marginTop: 20 } }, [0, 1, 2].map((i) => /* @__PURE__ */ React.createElement("div", { key: i, style: { width: i === step ? 24 : 8, height: 8, borderRadius: 4, background: i === step ? "#60A5FA" : i < step ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)", transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)" } }))), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginTop: 14, fontSize: 11, color: "rgba(255,255,255,0.28)" } }, "\u{1F512} Only visible to ISB Co'27")));
 }
 function OBField({ label, value, onChange, placeholder, type = "text" }) {
   return /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("label", { style: { display: "block", fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 } }, label), /* @__PURE__ */ React.createElement(
@@ -2732,7 +2737,7 @@ function App({session}) {
       setActivePage("events");
       setTimeout(function(){
         window.dispatchEvent(new CustomEvent("pulse:createEvent"));
-      }, 150);
+      }, 500);
     };
     window.addEventListener("pulse:createEvent:global", handler);
     return () => window.removeEventListener("pulse:createEvent:global", handler);
@@ -2820,7 +2825,7 @@ function App({session}) {
       case "network":
         return React.createElement(PeoplePage, { profiles:appProfiles, setProfiles:setDbProfiles, onViewProfile:handleViewProfile, searchQuery, currentUser, onStatusChange:handleStatusChange, defaultTab:"network" });
       case "profile":
-        return React.createElement(MyProfilePage, { currentUser, setCurrentUser: async (u) => { if(userId) await upsertProfile(userId,{name:u.name,campus:u.campus,prev_role:u.prevRole,prev_company:u.prevCompany,industry:u.industry,years_exp:u.yearsExp,location:u.location,undergrad:u.undergrad,degree:u.degree,major:u.major,career_goals:u.careerGoals,interests:u.interests,hobbies:u.hobbies,skills:u.skills,photo:u.photo,updated_at:new Date().toISOString()}); const p=await getProfile(userId); if(p) setMyProfile(p); }, setActivePage });
+        return React.createElement(MyProfilePage, { currentUser, setCurrentUser: async (u) => { if(userId) await upsertProfile(userId,{name:u.name,campus:u.campus,section:u.section,bio:u.bio,prev_role:u.prevRole,prev_company:u.prevCompany,industry:u.industry,years_exp:u.yearsExp,location:u.location,undergrad:u.undergrad,degree:u.degree,major:u.major,career_goals:u.careerGoals,interests:u.interests,hobbies:u.hobbies,skills:u.skills,photo:u.photo,updated_at:new Date().toISOString()}); const p=await getProfile(userId); if(p) setMyProfile(p); }, setActivePage });
       case "settings":
         return /* @__PURE__ */ React.createElement(SettingsPage, { onReplayTour: () => setShowTour(true), isDark, setIsDark });
       default:
