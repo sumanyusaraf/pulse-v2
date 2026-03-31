@@ -6,7 +6,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pulse</title>
-<text y='28' font-size='28'>⚡</text></svg>">
+
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
@@ -1506,7 +1506,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
   const [allEvents, setAllEvents] = React.useState(appEvents || []);
   React.useEffect(function(){ if(appEvents && appEvents.length>0) setAllEvents(appEvents); }, [appEvents]);
   const todayDate = new Date().toISOString().slice(0,10);
-  const [newEvt, setNewEvt] = React.useState({ title: "", community: "", category: "Social", location: "", date: todayDate, timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
+  const [newEvt, setNewEvt] = React.useState({ title: "", community: "", category: "Social", location: "", date: todayDate, timeLabel: "6 PM", vibe: "", maxSpots: 15, noLimit: false });
 
   // Live counter — ticks up every 5s to feel alive
   const liveEvent = allEvents.find(e => e.live);
@@ -1854,7 +1854,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
             setAllEvents(prev => [created, ...prev]);
           }
           setCreating(false);
-          setNewEvt({ title: "", community: "", category: "Social", location: "", date: new Date().toISOString().slice(0,10), timeLabel: "", vibe: "", maxSpots: 15, noLimit: false });
+          setNewEvt({ title: "", community: "", category: "Social", location: "", date: new Date().toISOString().slice(0,10), timeLabel: "6 PM", vibe: "", maxSpots: 15, noLimit: false });
         } catch(e) { console.error("Create event error:", e); setCreating(false); }
       }
     }),
@@ -2254,7 +2254,7 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
   const [draft, setDraft] = React.useState(cleanDraftName(currentUser) || CURRENT_USER);
   const [saved, setSaved] = React.useState(false);
   const fileInputRef = React.useRef(null);
-  React.useEffect(() => { setDraft(cleanDraftName(currentUser) || CURRENT_USER); }, [currentUser]);
+  React.useEffect(() => { setDraft(cleanDraftName(currentUser) || CURRENT_USER); }, [currentUser?.id]);
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -2314,7 +2314,7 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
     React.createElement("div", { style: cardStyle },
       React.createElement("div", { style: { display: "flex", gap: 20, alignItems: "flex-start", marginBottom: 20 }},
         React.createElement("div", { style: { position: "relative", flexShrink: 0, cursor: "pointer" }, onClick: () => fileInputRef.current && fileInputRef.current.click() },
-          React.createElement(Avatar, { name: draft.name, photo: draft.photo, size: 72, radius: 14, extraStyle: { border: "3px solid " + bdr }}),
+          React.createElement(Avatar, { name: draft.name || displayName(currentUser), photo: draft.photo, size: 72, radius: 14, extraStyle: { border: "3px solid " + bdr }}),
           React.createElement("div", { style: { position: "absolute", inset: 0, borderRadius: 14, background: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0, transition: "opacity 0.15s" },
             onMouseEnter: e => e.currentTarget.style.opacity = "1",
             onMouseLeave: e => e.currentTarget.style.opacity = "0"
@@ -2379,6 +2379,20 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
     React.createElement("div", { style: cardStyle },
       React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: text, fontFamily: "'Sora',sans-serif", marginBottom: 4 }}, "Hobbies & Interests"),
       React.createElement("div", { style: { fontSize: 12, color: muted, marginBottom: 14 }}, "These power your compatibility matches in Discover"),
+      (function(){
+        const extraHobbies = (draft.hobbies||[]).filter(h => !ALL_HOBBIES.includes(h));
+        if (!extraHobbies.length) return null;
+        return React.createElement("div", { style: { marginBottom: 12 }},
+          React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}, "From your communities"),
+          React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 }},
+            extraHobbies.map(h =>
+              React.createElement("button", { key: h, onClick: ()=>toggleHobby(h), style: { padding: "6px 14px", borderRadius: 20, border: "1.5px solid #059669", background: "#ECFDF5", color: "#059669", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Sora',sans-serif", transition: "all 0.12s" }},
+                hobbyIcon(h), " ", h, " ✕"
+              )
+            )
+          )
+        );
+      })(),
       React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 }},
         ALL_HOBBIES.map(h => {
           const on = (draft.hobbies||[]).includes(h);
@@ -2730,9 +2744,7 @@ function App({session}) {
   React.useEffect(() => {
     const handler = () => {
       setActivePage("events");
-      setTimeout(function(){
-        window.dispatchEvent(new CustomEvent("pulse:createEvent"));
-      }, 150);
+      setShowCreateEvent(true);
     };
     window.addEventListener("pulse:createEvent:global", handler);
     return () => window.removeEventListener("pulse:createEvent:global", handler);
