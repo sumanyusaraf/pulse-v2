@@ -62,13 +62,20 @@ const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
 // ── Supabase ─────────────────────────────────────────────────────
 const _sb = (typeof supabase !== "undefined")
-  ? supabase.createClient("https://tiwewcglycjsnxexkykg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpd2V3Y2dseWNqc254ZXhreWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNTQxNzcsImV4cCI6MjA4OTczMDE3N30.2eyGKkbpvqFUO9ILGVDpuNm8nF1rWcsThI9CFC5hYTk")
+  ? supabase.createClient("https://tiwewcglycjsnxexkykg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpd2V3Y2dseWNqc254ZXhreWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNTQxNzcsImV4cCI6MjA4OTczMDE3N30.2eyGKkbpvqFUO9ILGVDpuNm8nF1rWcsThI9CFC5hYTk", {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: 'implicit'
+    }
+  })
   : null;
 
 async function signInWithMagicLink(email) {
   if (!_sb) return { error: { message: 'Service unavailable. Please refresh.' } };
   if (!email.toLowerCase().endsWith('@isb.edu')) return { error: { message: 'Only @isb.edu emails are allowed.' } };
-  return await _sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin } });
+  return await _sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href.split('#')[0] } });
 }
 async function signOut() { await _sb.auth.signOut(); window.location.reload(); }
 async function getProfile(uid) { const {data} = await _sb.from('profiles').select('*').eq('id',uid).single(); return data; }
