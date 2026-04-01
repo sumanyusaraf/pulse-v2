@@ -2652,8 +2652,37 @@ function AuthGate() {
 
   React.useEffect(() => {
     if (!_sb) { setSession(null); return; }
-    _sb.auth.getSession().then(({data}) => setSession(data.session));
-    const {data:{subscription}} = _sb.auth.onAuthStateChange((_e,s) => setSession(s));
+
+    async function restoreSession() {
+      // First try Supabase's own storage
+      const { data } = await _sb.auth.getSession();
+      if (data.session) { setSession(data.session); return; }
+
+      // Fallback: try our own backup tokens in localStorage
+      try {
+        const raw = localStorage.getItem('pulse_tok');
+        if (raw) {
+          const tok = JSON.parse(raw);
+          const { data: restored, error } = await _sb.auth.setSession({ access_token: tok.a, refresh_token: tok.r });
+          if (!error && restored.session) { setSession(restored.session); return; }
+          localStorage.removeItem('pulse_tok');
+        }
+      } catch(e) {}
+
+      setSession(null);
+    }
+
+    restoreSession();
+
+    const { data: { subscription } } = _sb.auth.onAuthStateChange((event, s) => {
+      if (s) {
+        // Back up tokens every time a valid session arrives
+        try { localStorage.setItem('pulse_tok', JSON.stringify({ a: s.access_token, r: s.refresh_token })); } catch(e) {}
+      } else if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('pulse_tok');
+      }
+      setSession(s);
+    });
     return () => subscription.unsubscribe();
   }, []);
 
