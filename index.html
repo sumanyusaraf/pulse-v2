@@ -72,9 +72,39 @@ const _sb = (typeof supabase !== "undefined")
   })
   : null;
 
-async function signOut() { await _sb.auth.signOut(); window.location.reload(); }
-async function getProfile(uid) { const {data} = await _sb.from('profiles').select('*').eq('id',uid).single(); return data; }
-async function upsertProfile(uid, p) { return await _sb.from('profiles').upsert({id:uid,...p,updated_at:new Date().toISOString()}); }
+async function signOut() {
+  try { localStorage.removeItem('pulse_tok'); localStorage.removeItem('pulse_profile'); } catch(e){}
+  await _sb.auth.signOut(); window.location.reload();
+}
+async function getProfile(uid) {
+  try {
+    const {data, error} = await _sb.from('profiles').select('*').eq('id',uid).single();
+    if (data) {
+      try { localStorage.setItem('pulse_profile', JSON.stringify({uid, data})); } catch(e){}
+      return data;
+    }
+    // Fallback to local cache if DB returned nothing
+    const cached = localStorage.getItem('pulse_profile');
+    if (cached) { const c = JSON.parse(cached); if (c.uid === uid) return c.data; }
+    return null;
+  } catch(e) {
+    const cached = localStorage.getItem('pulse_profile');
+    if (cached) { try { const c = JSON.parse(cached); if (c.uid === uid) return c.data; } catch(e2){} }
+    return null;
+  }
+}
+async function upsertProfile(uid, p) {
+  const payload = {id:uid,...p,updated_at:new Date().toISOString()};
+  // Always save locally first so data is never lost
+  try {
+    const cached = localStorage.getItem('pulse_profile');
+    const existing = cached ? JSON.parse(cached).data : {};
+    localStorage.setItem('pulse_profile', JSON.stringify({uid, data:{...existing,...payload}}));
+  } catch(e){}
+  const result = await _sb.from('profiles').upsert(payload);
+  if (result.error) console.error('[Pulse] Profile save error:', result.error.message, result.error);
+  return result;
+}
 async function fetchEvents() { const {data} = await _sb.from('events').select('*,rsvps(user_id,profiles(name,photo)),creator:profiles!events_created_by_fkey(name)').order('date').order('time'); return data||[]; }
 async function fetchProfiles() { const {data} = await _sb.from('profiles').select('*').eq('onboarded',true); return data||[]; }
 async function rsvpEvent(uid,eid) { return await _sb.from('rsvps').insert({user_id:uid,event_id:eid}); }
@@ -2678,10 +2708,14 @@ function AuthGate() {
       if (s) {
         // Back up tokens every time a valid session arrives
         try { localStorage.setItem('pulse_tok', JSON.stringify({ a: s.access_token, r: s.refresh_token })); } catch(e) {}
+        setSession(s);
       } else if (event === 'SIGNED_OUT') {
-        localStorage.removeItem('pulse_tok');
+        // Only clear session on explicit sign-out (not spurious events during token refresh)
+        const tok = localStorage.getItem('pulse_tok');
+        if (!tok) setSession(null); // no backup = truly signed out
+        // else: keep showing the app; restoreSession's backup will re-authenticate
       }
-      setSession(s);
+      // For INITIAL_SESSION with no session: restoreSession handles it via backup
     });
     return () => subscription.unsubscribe();
   }, []);
