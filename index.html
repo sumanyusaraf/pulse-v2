@@ -2735,7 +2735,7 @@ function AuthGate() {
       step === 'email'
         ? React.createElement('div', {style:cardStyle},
             React.createElement('div', {style:{fontSize:22,fontWeight:900,color:'#fff',marginBottom:8,letterSpacing:'-0.01em'}}, 'Welcome \uD83D\uDC4B'),
-            React.createElement('div', {style:{fontSize:14,color:'rgba(255,255,255,0.6)',marginBottom:24,lineHeight:1.6}}, 'Enter your ISB email — we\u2019ll send you a 6-digit code to sign in instantly. No password needed.'),
+            React.createElement('div', {style:{fontSize:14,color:'rgba(255,255,255,0.6)',marginBottom:24,lineHeight:1.6}}, 'Enter your ISB email — we\u2019ll send you a sign-in code instantly. No password needed.'),
             React.createElement('label', {style:{display:'block',fontSize:11,color:'rgba(255,255,255,0.6)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:8}}, 'ISB Email'),
             React.createElement('input', {type:'email',value:email,onChange:e=>setEmail(e.target.value),onKeyDown:e=>e.key==='Enter'&&!loading&&handleSendCode(),placeholder:'yourname@isb.edu',style:inputStyle}),
             authError && React.createElement('div', {style:{fontSize:13,color:'#FCA5A5',marginBottom:12,fontWeight:600}}, authError),
@@ -2750,14 +2750,14 @@ function AuthGate() {
             React.createElement('div', {style:{fontSize:36,marginBottom:12,textAlign:'center'}}, '\uD83D\uDCEC'),
             React.createElement('div', {style:{fontSize:20,fontWeight:900,color:'#fff',marginBottom:8,textAlign:'center'}}, 'Check your email'),
             React.createElement('div', {style:{fontSize:14,color:'rgba(255,255,255,0.6)',lineHeight:1.6,marginBottom:24,textAlign:'center'}},
-              'We sent a 6-digit code to ',
+              'We sent a sign-in code to ',
               React.createElement('strong', {style:{color:'#93C5FD'}}, email),
               '. Enter it below.'
             ),
-            React.createElement('label', {style:{display:'block',fontSize:11,color:'rgba(255,255,255,0.6)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:8,textAlign:'center'}}, 'Your 6-digit code'),
-            React.createElement('input', {ref:codeRef,type:'text',inputMode:'numeric',pattern:'[0-9]*',maxLength:6,value:code,onChange:e=>setCode(e.target.value.replace(/\D/g,'')),onKeyDown:e=>e.key==='Enter'&&!loading&&handleVerifyCode(),placeholder:'000000',style:{...inputStyle,fontSize:28,letterSpacing:'0.3em',textAlign:'center',fontWeight:800}}),
+            React.createElement('label', {style:{display:'block',fontSize:11,color:'rgba(255,255,255,0.6)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:8,textAlign:'center'}}, 'Your sign-in code'),
+            React.createElement('input', {ref:codeRef,type:'text',inputMode:'numeric',pattern:'[0-9]*',maxLength:8,value:code,onChange:e=>setCode(e.target.value.replace(/\D/g,'')),onKeyDown:e=>e.key==='Enter'&&!loading&&handleVerifyCode(),placeholder:'00000000',style:{...inputStyle,fontSize:24,letterSpacing:'0.25em',textAlign:'center',fontWeight:800}}),
             authError && React.createElement('div', {style:{fontSize:13,color:'#FCA5A5',marginBottom:12,fontWeight:600,textAlign:'center'}}, authError),
-            React.createElement('button', {onClick:handleVerifyCode,disabled:loading||code.length<6,style:btnStyle(loading||code.length<6)},
+            React.createElement('button', {onClick:handleVerifyCode,disabled:loading||code.length<4,style:btnStyle(loading||code.length<4)},
               loading ? 'Verifying...' : 'Sign in \u2192'
             ),
             React.createElement('div', {style:{textAlign:'center'}},
