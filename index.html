@@ -95,14 +95,27 @@ async function getProfile(uid) {
 }
 async function upsertProfile(uid, p) {
   const payload = {id:uid,...p,updated_at:new Date().toISOString()};
-  // Always save locally first so data is never lost
+  // STEP 1: Always save to localStorage first — this NEVER fails
   try {
     const cached = localStorage.getItem('pulse_profile');
-    const existing = cached ? JSON.parse(cached).data : {};
+    const existing = (cached ? JSON.parse(cached).data : null) || {};
     localStorage.setItem('pulse_profile', JSON.stringify({uid, data:{...existing,...payload}}));
   } catch(e){}
+  // STEP 2: Try full Supabase upsert
   const result = await _sb.from('profiles').upsert(payload);
-  if (result.error) console.error('[Pulse] Profile save error:', result.error.message, result.error);
+  if (!result.error) return result;
+  console.warn('[Pulse] Full profile save failed, trying minimal save:', result.error.message);
+  // STEP 3: Fallback — save only the columns that always exist
+  try {
+    const minimal = {
+      id: uid,
+      name: p.name || null,
+      onboarded: p.onboarded !== undefined ? p.onboarded : true,
+      updated_at: new Date().toISOString()
+    };
+    const r2 = await _sb.from('profiles').upsert(minimal);
+    if (r2.error) console.error('[Pulse] Minimal save also failed:', r2.error.message);
+  } catch(e) {}
   return result;
 }
 async function fetchEvents() { const {data} = await _sb.from('events').select('*,rsvps(user_id,profiles(name,photo)),creator:profiles!events_created_by_fkey(name)').order('date').order('time'); return data||[]; }
@@ -2807,9 +2820,25 @@ function App({session}) {
   const userId = session && !isGuest ? session.user?.id : null;
   const [dbEvents, setDbEvents] = React.useState([]);
   const [dbProfiles, setDbProfiles] = React.useState([]);
-  const [myProfile, setMyProfile] = React.useState(null);
+  const [myProfile, setMyProfile] = React.useState(() => {
+    // Load profile from localStorage IMMEDIATELY — no waiting for DB
+    if (!userId) return null;
+    try {
+      const cached = localStorage.getItem('pulse_profile');
+      if (cached) { const c = JSON.parse(cached); if (c.uid === userId) return c.data; }
+    } catch(e) {}
+    return null;
+  });
   const [dataLoaded, setDataLoaded] = React.useState(false);
-  const [onboardingDone, setOnboardingDone] = React.useState(false);
+  const [onboardingDone, setOnboardingDone] = React.useState(() => {
+    // If we have a locally cached profile that's onboarded, skip onboarding screen
+    if (!userId) return false;
+    try {
+      const cached = localStorage.getItem('pulse_profile');
+      if (cached) { const c = JSON.parse(cached); if (c.uid === userId && c.data && c.data.onboarded) return true; }
+    } catch(e) {}
+    return false;
+  });
   const [rsvpMap, setRsvpMap] = React.useState({});
   React.useEffect(() => {
     async function load() {
@@ -2817,7 +2846,7 @@ function App({session}) {
       setDbEvents(evts); setDbProfiles(profs);
       if(userId) {
         const prof = await getProfile(userId);
-        if(prof) setMyProfile(prof);
+        if(prof) setMyProfile(prof); // DB version wins over cache if available
         const {data:myRsvps} = await _sb.from("rsvps").select("event_id").eq("user_id",userId);
         if(myRsvps) { const m={}; myRsvps.forEach(r=>{m[r.event_id]=true;}); setRsvpMap(m); }
       }
