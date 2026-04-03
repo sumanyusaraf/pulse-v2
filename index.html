@@ -2314,7 +2314,7 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
     if (!u) return CURRENT_USER;
     var n = u.name;
     // If name looks like an email or pgp username, clear it so user fills it fresh
-    if (!n || n.includes('@') || n.includes('_pgp') || n === 'ISB Member' || n === 'Guest' || (n.includes('_') && !n.includes(' '))) {
+    if (!n || n.includes('@') || n.includes('_pgp') || n === 'ISB Member' || n === 'Guest') {
       return {...u, name: ''};
     }
     return u;
@@ -2322,7 +2322,13 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
   const [draft, setDraft] = React.useState(cleanDraftName(currentUser) || CURRENT_USER);
   const [saved, setSaved] = React.useState(false);
   const fileInputRef = React.useRef(null);
-  React.useEffect(() => { setDraft(cleanDraftName(currentUser) || CURRENT_USER); }, [currentUser?.id]);
+  // Only sync draft from currentUser if draft has no name yet (don't overwrite user's edits)
+  React.useEffect(() => {
+    setDraft(prev => {
+      if (prev && prev.name && prev.name.trim()) return prev; // user has a name — don't overwrite
+      return cleanDraftName(currentUser) || CURRENT_USER;
+    });
+  }, [currentUser?.id]);
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
