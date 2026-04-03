@@ -77,20 +77,34 @@ async function signOut() {
   await _sb.auth.signOut(); window.location.reload();
 }
 async function getProfile(uid) {
+  // Always load local cache first
+  var localData = null;
+  try {
+    const cached = localStorage.getItem('pulse_profile');
+    if (cached) { const c = JSON.parse(cached); if (c.uid === uid) localData = c.data; }
+  } catch(e) {}
   try {
     const {data, error} = await _sb.from('profiles').select('*').eq('id',uid).single();
     if (data) {
-      try { localStorage.setItem('pulse_profile', JSON.stringify({uid, data})); } catch(e){}
-      return data;
+      // Merge: DB wins on fields it has, local fills in what DB is missing
+      const merged = {...(localData||{}), ...data};
+      // Preserve local fields if DB returned null/empty for them
+      if (localData) {
+        ['career_goals','hobbies','interests','skills','campus','prev_role','prev_company',
+         'industry','years_exp','location','undergrad','degree','major','photo'].forEach(function(k){
+          if ((data[k] === null || data[k] === undefined || 
+               (Array.isArray(data[k]) && data[k].length === 0)) && localData[k]) {
+            merged[k] = localData[k];
+          }
+        });
+      }
+      merged.onboarded = data.onboarded || (localData && localData.onboarded) || true;
+      try { localStorage.setItem('pulse_profile', JSON.stringify({uid, data:merged})); } catch(e){}
+      return merged;
     }
-    // Fallback to local cache if DB returned nothing
-    const cached = localStorage.getItem('pulse_profile');
-    if (cached) { const c = JSON.parse(cached); if (c.uid === uid) return c.data; }
-    return null;
+    return localData;
   } catch(e) {
-    const cached = localStorage.getItem('pulse_profile');
-    if (cached) { try { const c = JSON.parse(cached); if (c.uid === uid) return c.data; } catch(e2){} }
-    return null;
+    return localData;
   }
 }
 async function upsertProfile(uid, p) {
@@ -2972,7 +2986,17 @@ function App({session}) {
       case "network":
         return React.createElement(PeoplePage, { profiles:appProfiles, setProfiles:setDbProfiles, onViewProfile:handleViewProfile, searchQuery, currentUser, onStatusChange:handleStatusChange, defaultTab:"network" });
       case "profile":
-        return React.createElement(MyProfilePage, { currentUser, setCurrentUser: async (u) => { if(userId) await upsertProfile(userId,{name:u.name,campus:u.campus,prev_role:u.prevRole,prev_company:u.prevCompany,industry:u.industry,years_exp:u.yearsExp,location:u.location,undergrad:u.undergrad,degree:u.degree,major:u.major,career_goals:u.careerGoals,interests:u.interests,hobbies:u.hobbies,skills:u.skills,photo:u.photo,updated_at:new Date().toISOString()}); const p=await getProfile(userId); if(p) setMyProfile(p); }, setActivePage });
+        return React.createElement(MyProfilePage, { currentUser, setCurrentUser: async (u) => {
+          if(userId) {
+            // Save full profile to localStorage immediately — never lost
+            const fullPayload = {id:userId,name:u.name,campus:u.campus,prev_role:u.prevRole,prev_company:u.prevCompany,industry:u.industry,years_exp:u.yearsExp,location:u.location,undergrad:u.undergrad,degree:u.degree,major:u.major,career_goals:u.careerGoals,interests:u.interests,hobbies:u.hobbies,skills:u.skills,photo:u.photo,onboarded:true};
+            try { localStorage.setItem('pulse_profile', JSON.stringify({uid:userId, data:fullPayload})); } catch(e){}
+            // Update UI immediately from local data
+            setMyProfile(fullPayload);
+            // Then save to DB in background
+            await upsertProfile(userId, fullPayload);
+          }
+        }, setActivePage });
       case "settings":
         return /* @__PURE__ */ React.createElement(SettingsPage, { onReplayTour: () => setShowTour(true), isDark, setIsDark });
       default:
