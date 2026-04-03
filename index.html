@@ -136,6 +136,12 @@ async function fetchEvents() { const {data} = await _sb.from('events').select('*
 async function fetchProfiles() { const {data} = await _sb.from('profiles').select('*').eq('onboarded',true); return data||[]; }
 async function rsvpEvent(uid,eid) { return await _sb.from('rsvps').insert({user_id:uid,event_id:eid}); }
 async function unrsvpEvent(uid,eid) { return await _sb.from('rsvps').delete().eq('user_id',uid).eq('event_id',eid); }
+async function deleteEvent(eventId) {
+  if (!_sb) return;
+  await _sb.from('rsvps').delete().eq('event_id', eventId);
+  await _sb.from('events').delete().eq('id', eventId);
+}
+
 async function createEventDB(uid,evt) { const {data,error} = await _sb.from('events').insert({...evt,created_by:uid}).select().single(); return {data,error}; }
 
 function dbProfileToApp(p) {
@@ -1555,7 +1561,10 @@ function PastEventCard({event,isDark,evtRes,setEvtRes}){
 function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, setShowCreateEvent, appEvents, appProfiles, rsvpMap, userId, onViewProfile, onRsvpToggle, onEventCreated }) {
   const isDark = useTheme();
   const isMobile = useMobile();
-  const [joined, setJoined] = React.useState({});
+  const [joined, setJoined] = React.useState(() => {
+    // Pre-populate from rsvpMap so calendar button shows immediately
+    return rsvpMap || {};
+  });
   const [catFilter, setCatFilter] = React.useState("All");
   const [selectedEvt, setSelectedEvt] = React.useState(null);
   const [creating, setCreating] = React.useState(false);
@@ -1573,6 +1582,7 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
   }, []);
   const [allEvents, setAllEvents] = React.useState(appEvents || []);
   React.useEffect(function(){ if(appEvents && appEvents.length>0) setAllEvents(appEvents); }, [appEvents]);
+  React.useEffect(function(){ if(rsvpMap) setJoined(function(prev){ return {...rsvpMap,...prev}; }); }, [rsvpMap]);
   const todayDate = new Date().toISOString().slice(0,10);
   const [newEvt, setNewEvt] = React.useState({ title: "", community: "", category: "Social", location: "", date: todayDate, timeLabel: "6 PM", vibe: "", maxSpots: 15, noLimit: false });
 
@@ -1739,7 +1749,19 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
           ),
           (function(){
             var isOrg = event.createdBy && event.createdBy === displayName(currentUser);
-            if (isOrg) return React.createElement("div", { style: { width:"100%", padding:"14px", borderRadius:13, background:"#ECFDF5", color:"#059669", fontWeight:800, fontSize:15, textAlign:"center", fontFamily:"'Sora',sans-serif" }}, "\u2726 You organised this event");
+            if (isOrg) return React.createElement(React.Fragment, null,
+              React.createElement("div", { style: { width:"100%", padding:"14px", borderRadius:13, background:"#ECFDF5", color:"#059669", fontWeight:800, fontSize:15, textAlign:"center", fontFamily:"'Sora',sans-serif" }}, "\u2726 You organised this event"),
+              React.createElement("button", {
+                onClick: async function(){
+                  if(window.confirm("Cancel this event? This cannot be undone.")){
+                    await deleteEvent(event.id);
+                    if(onEventCreated) await onEventCreated();
+                    setSelectedEvt(null);
+                  }
+                },
+                style: { width:"100%", marginTop:8, padding:"11px", borderRadius:13, background:"transparent", border:"1.5px solid #EF4444", color:"#EF4444", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"'Sora',sans-serif" }
+              }, "\uD83D\uDDD1 Cancel this event")
+            );
             return React.createElement("button", { onClick: () => { toggleJoin(event.id); setSelectedEvt(null); }, style: { width:"100%", padding:"14px", border:"none", borderRadius:13, cursor:"pointer", fontWeight:800, fontSize:15, fontFamily:"'Sora',sans-serif", background:isJoined?"#ECFDF5":color, color:isJoined?"#059669":"#fff", boxShadow:isJoined?"none":`0 4px 20px ${color}44` }},
               isJoined ? "\u2713 You're going \u2014 tap to leave" : "Join this event \u2192"
             );
@@ -2312,12 +2334,14 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
   const isMobile = useMobile();
   const cleanDraftName = (u) => {
     if (!u) return CURRENT_USER;
-    var n = u.name;
-    // If name looks like an email or pgp username, clear it so user fills it fresh
+    // Check if we have a saved display name in localStorage
+    var savedName = null;
+    try { savedName = localStorage.getItem('pulse_display_name'); } catch(e){}
+    var n = savedName || u.name;
     if (!n || n.includes('@') || n.includes('_pgp') || n === 'ISB Member' || n === 'Guest') {
       return {...u, name: ''};
     }
-    return u;
+    return {...u, name: n};
   };
   const [draft, setDraft] = React.useState(cleanDraftName(currentUser) || CURRENT_USER);
   const [saved, setSaved] = React.useState(false);
@@ -2996,7 +3020,10 @@ function App({session}) {
           if(userId) {
             // Save full profile to localStorage immediately — never lost
             const fullPayload = {id:userId,name:u.name,campus:u.campus,prev_role:u.prevRole,prev_company:u.prevCompany,industry:u.industry,years_exp:u.yearsExp,location:u.location,undergrad:u.undergrad,degree:u.degree,major:u.major,career_goals:u.careerGoals,interests:u.interests,hobbies:u.hobbies,skills:u.skills,photo:u.photo,onboarded:true};
-            try { localStorage.setItem('pulse_profile', JSON.stringify({uid:userId, data:fullPayload})); } catch(e){}
+            try {
+              localStorage.setItem('pulse_profile', JSON.stringify({uid:userId, data:fullPayload}));
+              if (u.name && u.name.trim()) localStorage.setItem('pulse_display_name', u.name.trim());
+            } catch(e){}
             // Update UI immediately from local data
             setMyProfile(fullPayload);
             // Then save to DB in background
