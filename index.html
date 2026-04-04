@@ -117,7 +117,7 @@ async function upsertProfile(uid, p) {
   return result;
 }
 async function fetchEvents() { const {data} = await _sb.from('events').select('*,rsvps(user_id,profiles(name,photo)),creator:profiles!events_created_by_fkey(name)').order('date').order('time'); return data||[]; }
-async function fetchProfiles() { const {data} = await _sb.from('profiles').select('*').eq('onboarded',true); return data||[]; }
+async function fetchProfiles() { const {data} = await _sb.from('profiles').select('*').or('onboarded.eq.true,name.neq.null'); return data||[]; }
 async function rsvpEvent(uid,eid) { return await _sb.from('rsvps').insert({user_id:uid,event_id:eid}); }
 async function unrsvpEvent(uid,eid) { return await _sb.from('rsvps').delete().eq('user_id',uid).eq('event_id',eid); }
 async function deleteEvent(eventId) {
@@ -130,7 +130,7 @@ async function createEventDB(uid,evt) { const {data,error} = await _sb.from('eve
 
 function dbProfileToApp(p) {
   if(!p) return null;
-  return { id:p.id, name:p.name||'ISB Member', email:p.email, prevRole:p.prev_role, prevCompany:p.prev_company, industry:p.industry, yearsExp:p.years_exp, location:p.location, campus:p.campus, undergrad:p.undergrad, degree:p.degree, major:p.major, careerGoals:p.career_goals||[], interests:p.interests||[], hobbies:p.hobbies||[], skills:p.skills||[], photo:p.photo, contactStatus:'Not contacted', followUpDate:null, interactions:[], notes:'' };
+  return { id:p.id, name:p.name||'ISB Member', email:p.email, bio:p.bio, prevRole:p.prev_role, prevCompany:p.prev_company, industry:p.industry, yearsExp:p.years_exp, location:p.location, campus:p.campus, undergrad:p.undergrad, degree:p.degree, major:p.major, careerGoals:p.career_goals||[], interests:p.interests||[], hobbies:p.hobbies||[], skills:p.skills||[], photo:p.photo, contactStatus:'Not contacted', followUpDate:null, interactions:[], notes:'' };
 }
 function dbEventToApp(e) {
   if(!e) return null;
@@ -2048,7 +2048,7 @@ function DiscoverPage({ profiles, setProfiles, onViewProfile, searchQuery, curre
     todayEvents.forEach(e => e.attendees.forEach(n => { if (!map[n]) map[n] = e.title; }));
     return map;
   }, []);
-  const scored = useMemo(() => profiles.map(p => ({ ...p, score: calculateCompatibility(p, cu) })), [profiles, cu]);
+  const scored = useMemo(() => profiles.filter(p => p.id !== cu.id).map(p => ({ ...p, score: calculateCompatibility(p, cu) })), [profiles, cu]);
   const searched = useMemo(() => {
     if (!searchQuery) return scored;
     const q = searchQuery.toLowerCase();
@@ -3015,7 +3015,7 @@ function App({session}) {
         return React.createElement(MyProfilePage, { currentUser, setCurrentUser: async (u) => {
           if(userId) {
             // Save full profile to localStorage immediately — never lost
-            const fullPayload = {id:userId,name:u.name,campus:u.campus,prev_role:u.prevRole,prev_company:u.prevCompany,industry:u.industry,years_exp:u.yearsExp,location:u.location,undergrad:u.undergrad,degree:u.degree,major:u.major,career_goals:u.careerGoals,interests:u.interests,hobbies:u.hobbies,skills:u.skills,photo:u.photo,onboarded:true};
+            const fullPayload = {id:userId,name:u.name,bio:u.bio,campus:u.campus,prev_role:u.prevRole,prev_company:u.prevCompany,industry:u.industry,years_exp:u.yearsExp,location:u.location,undergrad:u.undergrad,degree:u.degree,major:u.major,career_goals:u.careerGoals,interests:u.interests,hobbies:u.hobbies,skills:u.skills,photo:u.photo,onboarded:true};
             try {
               localStorage.setItem('pulse_profile', JSON.stringify({uid:userId, data:fullPayload}));
               if (u.name && u.name.trim()) localStorage.setItem('pulse_display_name', u.name.trim());
