@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU5ErkJggg==" type="image/png">
-  <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU5ErkJggg==">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pulse</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23003A8F'/%3E%3Cpolyline points='3,32 14,32 19,13 27,51 35,3 42,44 48,32 61,32' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="alternate icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU5ErkJggg==">
+  <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU5ErkJggg==">
 
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
@@ -36,28 +37,7 @@
     }
   </style>
 
-  <script>document.title = "Pulse";</script>
-  <script>
-  (function(){
-    var c=document.createElement('canvas');c.width=64;c.height=64;
-    var x=c.getContext('2d');
-    x.fillStyle='#003A8F';
-    x.beginPath();x.moveTo(14,0);x.lineTo(50,0);x.quadraticCurveTo(64,0,64,14);
-    x.lineTo(64,50);x.quadraticCurveTo(64,64,50,64);x.lineTo(14,64);
-    x.quadraticCurveTo(0,64,0,50);x.lineTo(0,14);x.quadraticCurveTo(0,0,14,0);
-    x.closePath();x.fill();
-    x.strokeStyle='#fff';x.lineWidth=5;x.lineJoin='round';x.lineCap='round';
-    x.beginPath();x.moveTo(3,32);x.lineTo(14,32);x.lineTo(19,13);
-    x.lineTo(27,51);x.lineTo(35,3);x.lineTo(42,44);x.lineTo(48,32);x.lineTo(61,32);
-    x.stroke();
-    var png=c.toDataURL('image/png');
-    // Remove all existing icon links (Safari needs DOM removal to re-render)
-    document.querySelectorAll("link[rel*='icon'],link[rel='apple-touch-icon']").forEach(function(l){l.parentNode.removeChild(l);});
-    var lk=document.createElement('link');lk.rel='icon';lk.type='image/png';lk.href=png;document.head.appendChild(lk);
-    var lk2=document.createElement('link');lk2.rel='shortcut icon';lk2.type='image/png';lk2.href=png;document.head.appendChild(lk2);
-    var lk3=document.createElement('link');lk3.rel='apple-touch-icon';lk3.href=png;document.head.appendChild(lk3);
-  })();
-  </script>
+
 </head>
 <body>
   <div id="root"></div>
