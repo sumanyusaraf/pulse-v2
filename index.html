@@ -51,7 +51,11 @@
     x.lineTo(27,51);x.lineTo(35,3);x.lineTo(42,44);x.lineTo(48,32);x.lineTo(61,32);
     x.stroke();
     var png=c.toDataURL('image/png');
-    document.querySelectorAll("link[rel*='icon']").forEach(function(l){l.href=png;});
+    // Remove all existing icon links (Safari needs DOM removal to re-render)
+    document.querySelectorAll("link[rel*='icon'],link[rel='apple-touch-icon']").forEach(function(l){l.parentNode.removeChild(l);});
+    var lk=document.createElement('link');lk.rel='icon';lk.type='image/png';lk.href=png;document.head.appendChild(lk);
+    var lk2=document.createElement('link');lk2.rel='shortcut icon';lk2.type='image/png';lk2.href=png;document.head.appendChild(lk2);
+    var lk3=document.createElement('link');lk3.rel='apple-touch-icon';lk3.href=png;document.head.appendChild(lk3);
   })();
   </script>
 </head>
@@ -1699,8 +1703,8 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
     const spots = event.maxSpots === null ? null : event.maxSpots - going;
     const fillPct = event.maxSpots ? Math.min(100, Math.round(going / event.maxSpots * 100)) : Math.min(100, Math.round(going / 20 * 100));
     const matchProfiles = event.attendees.filter(n => matchPoolNames.includes(n));
-    return React.createElement("div", { onClick: () => setSelectedEvt(null), style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 300, display: "flex", alignItems: "flex-end", justifyContent: "center", backdropFilter: "blur(4px)" }},
-      React.createElement("div", { onClick: e => e.stopPropagation(), style: { background: isDark ? "#1E293B" : "#fff", borderRadius: "24px 24px 0 0", width: "100%", maxWidth: 520, maxHeight: "88vh", overflowY: "auto", boxShadow: "0 -8px 40px rgba(0,0,0,0.2)" }},
+    return React.createElement("div", { onClick: () => setSelectedEvt(null), style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)", padding: "20px" }},
+      React.createElement("div", { onClick: e => e.stopPropagation(), style: { background: isDark ? "#1E293B" : "#fff", borderRadius: "24px", width: "100%", maxWidth: 520, maxHeight: "88vh", overflowY: "auto", boxShadow: "0 8px 60px rgba(0,0,0,0.25)" }},
         React.createElement("div", { style: { background: `linear-gradient(135deg, ${color} 0%, ${color}CC 100%)`, padding: "24px 24px 20px", position: "relative", borderRadius: "24px 24px 0 0" }},
           React.createElement("button", { onClick: () => setSelectedEvt(null), style: { position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", color: "#fff", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}, "\u2715"),
           React.createElement("div", { style: { fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}, event.icon, " ", event.community, " \xB7 ", event.category),
@@ -2439,7 +2443,7 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
         React.createElement("div", { style: { marginBottom: 16 }},
           lbl("Industry"),
           React.createElement("select", { value: draft.industry||"", onChange: e=>setDraft(p=>({...p,industry:e.target.value})),
-            style: { width: "100%", padding: "10px 14px", border: "1.5px solid " + inputBdr, borderRadius: 10, fontSize: 13, fontFamily: "'Sora',sans-serif", outline: "none", background: inputBg, color: text, boxSizing: "border-box", cursor: "pointer", appearance: "auto" }},
+            style: { width: "100%", padding: "10px 14px", height: "42px", border: "1.5px solid " + inputBdr, borderRadius: 10, fontSize: 13, fontFamily: "'Sora',sans-serif", outline: "none", background: inputBg, color: text, boxSizing: "border-box", cursor: "pointer", appearance: "auto" }},
             React.createElement("option", { value: "" }, "Select industry"),
             ["Consulting & Strategy","BFSI / Financial Services","Technology","E-commerce","FMCG & Consumer","Social Sector","Conglomerates","EV / Automotive","Media & Entertainment","Healthcare","Real Estate","Manufacturing"].map(i => React.createElement("option", { key: i, value: i }, i))
           )
@@ -2447,7 +2451,7 @@ function MyProfilePage({ currentUser, setCurrentUser, setActivePage }) {
         React.createElement("div", { style: { marginBottom: 16 }},
           lbl("Years of Experience"),
           React.createElement("select", { value: draft.yearsExp||"", onChange: e=>setDraft(p=>({...p,yearsExp:parseInt(e.target.value)||""})),
-            style: { width: "100%", padding: "10px 14px", border: "1.5px solid " + inputBdr, borderRadius: 10, fontSize: 13, fontFamily: "'Sora',sans-serif", outline: "none", background: inputBg, color: text, boxSizing: "border-box", cursor: "pointer", appearance: "auto" }},
+            style: { width: "100%", padding: "10px 14px", height: "42px", border: "1.5px solid " + inputBdr, borderRadius: 10, fontSize: 13, fontFamily: "'Sora',sans-serif", outline: "none", background: inputBg, color: text, boxSizing: "border-box", cursor: "pointer", appearance: "auto" }},
             React.createElement("option", { value: "" }, "Select"),
             [1,2,3,4,5,6,7,8,9,10,11,12].map(n => React.createElement("option", { key: n, value: n }, n + " year" + (n>1?"s":"")))
           )
@@ -2812,7 +2816,7 @@ function AuthGate() {
     ),
     React.createElement('div', null,
       React.createElement('div', {style:{color:'#fff',fontWeight:900,fontSize:26,letterSpacing:'-0.02em'}}, 'Pulse'),
-      React.createElement('div', {style:{color:'#93C5FD',fontSize:12,fontWeight:500}}, 'The live pulse of ISB Co\u202727')
+      React.createElement('div', {style:{color:'#93C5FD',fontSize:14,fontWeight:500}}, 'The live pulse of ISB Co\u202727')
     )
   );
 
