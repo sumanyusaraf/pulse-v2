@@ -1632,7 +1632,11 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
 
   const goingCount = (event) => {
     const base = event.id === (liveEvent && liveEvent.id) ? liveCount : event.attendees.length;
-    return base + (joined[event.id] ? 1 : 0);
+    // Only add +1 if the current user isn't already reflected in the attendees array
+    // (avoids double-counting when Supabase rsvps are already included in event.attendees)
+    const myName = displayName(currentUser);
+    const alreadyInList = event.attendees.some(n => cleanName(n) === myName || n === (currentUser && currentUser.name));
+    return base + (joined[event.id] && !alreadyInList ? 1 : 0);
   };
   const addToCalendar = function(ev) {
     try {
