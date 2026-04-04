@@ -1032,7 +1032,7 @@ function Sidebar({ activePage, setActivePage, currentUser, appEvents }) {
         React.createElement("span", { style: { fontSize: 24, lineHeight: 1 }}, "\u26A1"),
         React.createElement("div", null,
           React.createElement("div", { style: { color: "#fff", fontWeight: 900, fontSize: 18, fontFamily: "'Sora',sans-serif", letterSpacing: "-0.02em" }}, "Pulse"),
-          React.createElement("div", { style: { color: "#93C5FD", fontSize: 12, fontWeight: 500, letterSpacing: "0.01em", lineHeight: 1.4, marginTop: 4 }}, "The live pulse", React.createElement("br"), "of ISB Co‧27")
+          React.createElement("div", { style: { color: "#93C5FD", fontSize: 12, fontWeight: 500, letterSpacing: "0.01em", lineHeight: 1.4, marginTop: 4 }}, "The live pulse", React.createElement("br"), "of ISB Co'27")
         )
       )
     ),
@@ -1121,7 +1121,7 @@ function BellDropdown({ currentUser }) {
 function ProductTour({ onClose }) {
   const [step, setStep] = React.useState(0);
   const slides = [
-    { icon: "\u26A1", title: "Welcome to Pulse!", body: "The live pulse of ISB Co\u202727. Find what\u2019s happening right now and who\u2019s worth meeting. Built for the batch, by the batch." },
+    { icon: "\u26A1", title: "Welcome to Pulse!", body: "The live pulse of ISB Co'27. Find what\u2019s happening right now and who\u2019s worth meeting. Built for the batch, by the batch." },
     { icon: "\uD83D\uDCC5", title: "Events", body: "Everything happening this week \u2014 sports, chai sessions, AMAs, poker nights. Tap \u201C+\u201D to create your own." },
     { icon: "\uD83D\uDC65", title: "People & Compatibility", body: "Discover batchmates matched to your goals and interests. The higher the score, the more you\u2019ll click. Tap any profile to connect." },
     { icon: "\uD83D\uDE4C", title: "You\u2019re all set!", body: "Start exploring events or head to People to find batchmates worth meeting. See you on campus!" }
@@ -1755,6 +1755,9 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
             var isOrg = event.createdBy && event.createdBy === displayName(currentUser);
             if (isOrg) return React.createElement(React.Fragment, null,
               React.createElement("div", { style: { width:"100%", padding:"14px", borderRadius:13, background:"#ECFDF5", color:"#059669", fontWeight:800, fontSize:15, textAlign:"center", fontFamily:"'Sora',sans-serif" }}, "\u2726 You organised this event"),
+              React.createElement("button", { onClick: function(){ addToCalendar(event); }, style: { width:"100%", marginTop:8, padding:"10px", border:"1.5px solid "+(isDark?"#334155":"#E2E8F0"), borderRadius:13, background:"transparent", color:isDark?"#60A5FA":"#2563EB", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"'Sora',sans-serif" }},
+                "\uD83D\uDCC5 Add to calendar"
+              ),
               React.createElement("button", {
                 onClick: async function(){
                   if(window.confirm("Cancel this event? This cannot be undone.")){
@@ -1766,8 +1769,13 @@ function EventsPage({ currentUser, setActivePage, searchQuery, showCreateEvent, 
                 style: { width:"100%", marginTop:8, padding:"11px", borderRadius:13, background:"transparent", border:"1.5px solid #EF4444", color:"#EF4444", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"'Sora',sans-serif" }
               }, "\uD83D\uDDD1 Cancel this event")
             );
-            return React.createElement("button", { onClick: () => { toggleJoin(event.id); setSelectedEvt(null); }, style: { width:"100%", padding:"14px", border:"none", borderRadius:13, cursor:"pointer", fontWeight:800, fontSize:15, fontFamily:"'Sora',sans-serif", background:isJoined?"#ECFDF5":color, color:isJoined?"#059669":"#fff", boxShadow:isJoined?"none":`0 4px 20px ${color}44` }},
-              isJoined ? "\u2713 You're going \u2014 tap to leave" : "Join this event \u2192"
+            return React.createElement(React.Fragment, null,
+              React.createElement("button", { onClick: () => { toggleJoin(event.id); setSelectedEvt(null); }, style: { width:"100%", padding:"14px", border:"none", borderRadius:13, cursor:"pointer", fontWeight:800, fontSize:15, fontFamily:"'Sora',sans-serif", background:isJoined?"#ECFDF5":color, color:isJoined?"#059669":"#fff", boxShadow:isJoined?"none":`0 4px 20px ${color}44` }},
+                isJoined ? "\u2713 You're going \u2014 tap to leave" : "Join this event \u2192"
+              ),
+              isJoined && React.createElement("button", { onClick: function(){ addToCalendar(event); }, style: { width:"100%", marginTop:8, padding:"10px", border:"1.5px solid "+(isDark?"#334155":"#E2E8F0"), borderRadius:13, background:"transparent", color:isDark?"#60A5FA":"#2563EB", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"'Sora',sans-serif" }},
+                "\uD83D\uDCC5 Add to calendar"
+              )
             );
           })()
         )
@@ -2816,7 +2824,7 @@ function AuthGate() {
     ),
     React.createElement('div', null,
       React.createElement('div', {style:{color:'#fff',fontWeight:900,fontSize:26,letterSpacing:'-0.02em'}}, 'Pulse'),
-      React.createElement('div', {style:{color:'#93C5FD',fontSize:14,fontWeight:500}}, 'The live pulse of ISB Co\u202727')
+      React.createElement('div', {style:{color:'#93C5FD',fontSize:14,fontWeight:500}}, 'The live pulse of ISB Co\u201927')
     )
   );
 
